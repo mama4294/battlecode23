@@ -7,12 +7,82 @@ import java.util.Set;
 
 public class Carrier extends Robot {
 
+    int heldWeight = 0;
+    boolean isFull = false;
+
     public Carrier(RobotController r) {
         super(r);
     }
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
+        heldWeight = getHeldWeight();
+        isFull = heldWeight == 40;
+        bringAnchorToIsland();
+
+        if(!isFull){
+            MapLocation targetWell = getWellLoc();
+            if(targetWell != null){
+                collectFromWell(targetWell);
+                Nav.goTo(targetWell);
+
+            }else{
+                Nav.moveRandomly();
+            }
+        }
+        else{
+            tryTransferToHomeHQ();
+            boolean isAdjecentToHomeHQ = rc.getLocation().isAdjacentTo(homeHQ);
+            if(!isAdjecentToHomeHQ){
+                Nav.goTo(homeHQ);
+            }else{
+                Nav.moveRandomly();
+            }
+          Debug.setString("I'm full");
+        }
+
+
+
+
+    }
+
+    public void collectFromWell(MapLocation wellLocation) throws GameActionException{
+        if (rc.canCollectResource(wellLocation, -1)) {
+                rc.collectResource(wellLocation, -1);
+                Debug.setString("Collecting, now have, AD:" +
+                        rc.getResourceAmount(ResourceType.ADAMANTIUM) +
+                        " MN: " + rc.getResourceAmount(ResourceType.MANA) +
+                        " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
+
+        }
+    }
+
+    public void tryTransferToHomeHQ() throws GameActionException{
+        if(rc.canTransferResource(homeHQ, ResourceType.ADAMANTIUM, rc.getResourceAmount(ResourceType.ADAMANTIUM))){
+            rc.transferResource(homeHQ, ResourceType.ADAMANTIUM, rc.getResourceAmount(ResourceType.ADAMANTIUM));
+        }
+        if(rc.canTransferResource(homeHQ, ResourceType.MANA, rc.getResourceAmount(ResourceType.MANA))){
+            rc.transferResource(homeHQ, ResourceType.MANA, rc.getResourceAmount(ResourceType.MANA));
+        }
+        if(rc.canTransferResource(homeHQ, ResourceType.ELIXIR, rc.getResourceAmount(ResourceType.ELIXIR))){
+            rc.transferResource(homeHQ, ResourceType.ELIXIR, rc.getResourceAmount(ResourceType.ELIXIR));
+        }
+    }
+
+    public MapLocation getWellLoc() throws GameActionException{
+        WellInfo[] wells = rc.senseNearbyWells();
+        if (wells.length > 1){
+            return wells[1].getMapLocation();
+        }
+        return null;
+    }
+
+
+    public int getHeldWeight() throws GameActionException {
+        return rc.getResourceAmount(ResourceType.ADAMANTIUM) + rc.getResourceAmount(ResourceType.MANA) + rc.getResourceAmount(ResourceType.ELIXIR);
+    }
+
+    public void bringAnchorToIsland() throws GameActionException{
         if (rc.getAnchor() != null) {
             // If I have an anchor singularly focus on getting it to the first island I see
             int[] islands = rc.senseNearbyIslands();
@@ -36,42 +106,7 @@ public class Carrier extends Robot {
                 }
             }
         }
-        // Try to gather from squares around us.
-        MapLocation me = rc.getLocation();
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                MapLocation wellLocation = new MapLocation(me.x + dx, me.y + dy);
-                if (rc.canCollectResource(wellLocation, -1)) {
-                    if (rng.nextBoolean()) {
-                        rc.collectResource(wellLocation, -1);
-                        Debug.setString("Collecting, now have, AD:" +
-                                rc.getResourceAmount(ResourceType.ADAMANTIUM) +
-                                " MN: " + rc.getResourceAmount(ResourceType.MANA) +
-                                " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
-                    }
-                }
-            }
-            // Occasionally try out the carriers attack
-            if (rng.nextInt(20) == 1) {
-                RobotInfo[] enemyRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-                if (enemyRobots.length > 0) {
-                    if (rc.canAttack(enemyRobots[0].location)) {
-                        rc.attack(enemyRobots[0].location);
-                    }
-                }
-            }
-
-            // If we can see a well, move towards it
-            WellInfo[] wells = rc.senseNearbyWells();
-            if (wells.length > 1 && rng.nextInt(3) == 1) {
-                WellInfo well_one = wells[1];
-                Direction dir = me.directionTo(well_one.getMapLocation());
-                Nav.goTo(dir);
-            }
-            // Also try to move randomly.
-            Direction dir = directions[rng.nextInt(directions.length)];
-            Nav.goTo(dir);
-        }
     }
+
 }
 

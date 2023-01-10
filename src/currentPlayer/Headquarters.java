@@ -10,27 +10,40 @@ public class Headquarters extends Robot {
     }
 
     public void takeTurn() throws GameActionException {
-        // Pick a direction to build in.
-        Direction dir = directions[rng.nextInt(directions.length)];
-        MapLocation newLoc = rc.getLocation().add(dir);
-        if (rc.canBuildAnchor(Anchor.STANDARD)) {
-            // If we can build an anchor do it!
-            rc.buildAnchor(Anchor.STANDARD);
-            Debug.setString("Building anchor! " + rc.getAnchor());
-        }
-        if (rng.nextBoolean()) {
-            // Let's try to build a carrier.
-            Debug.setString("Trying to build a carrier");
-            if (rc.canBuildRobot(RobotType.CARRIER, newLoc)) {
-                rc.buildRobot(RobotType.CARRIER, newLoc);
-            }
-        } else {
-            // Let's try to build a launcher.
-            Debug.setString("Trying to build a launcher");
-            if (rc.canBuildRobot(RobotType.LAUNCHER, newLoc)) {
-                rc.buildRobot(RobotType.LAUNCHER, newLoc);
-            }
-        }
+
+        //try to build an anchor
+        tryBuildAnchor();
+
+        //try to build a carrier
+        tryBuild(RobotType.CARRIER);
+
     }
+
+    public boolean tryBuild(RobotType type) throws GameActionException {
+        if(rc.getResourceAmount(ResourceType.ADAMANTIUM) < type.buildCostAdamantium || rc.getResourceAmount(ResourceType.MANA) < type.buildCostMana || rc.getResourceAmount(ResourceType.ELIXIR) < type.buildCostElixir)  return false;
+        MapLocation currentLocation = rc.getLocation();
+        for(int i = 0; i < directions.length; i++) {
+            Direction dir = directions[i];
+            if (rc.canBuildRobot(type, currentLocation.add(dir))) {
+                rc.buildRobot(type, currentLocation.add(dir));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean tryBuildAnchor() throws GameActionException {
+        if(rc.getResourceAmount(ResourceType.ADAMANTIUM) < Anchor.STANDARD.adamantiumCost || rc.getResourceAmount(ResourceType.MANA) > Anchor.STANDARD.manaCost) return false;
+        MapLocation currentLocation = rc.getLocation();
+        for(int i = 0; i < directions.length; i++) {
+            Direction dir = directions[i];
+            if (rc.canBuildAnchor(Anchor.STANDARD)) {
+                rc.buildAnchor(Anchor.STANDARD);
+                return true;
+            }
+        }
+        return false;
+    }
+        
 
 }

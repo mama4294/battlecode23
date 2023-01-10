@@ -1,6 +1,10 @@
 package currentPlayer;
 import battlecode.common.*;
 
+
+import static currentPlayer.Robot.directions;
+import static currentPlayer.Robot.rng;
+
 public class Nav{
         static RobotController rc;
 
@@ -27,6 +31,7 @@ public class Nav{
 
     // navigate towards a particular location
     static boolean goTo(MapLocation destination) throws GameActionException {
+        Debug.setIndicatorLineYellow(destination);
         if(!rc.isMovementReady())  return false;
 
         if (rc.getLocation().equals(destination)) {
@@ -34,6 +39,11 @@ public class Nav{
         } else {
             return goTo(rc.getLocation().directionTo(destination));
         }
+    }
+
+    static void moveRandomly() throws GameActionException{
+        Direction dir = directions[rng.nextInt(directions.length)];
+        Nav.goTo(dir);
     }
 
 }

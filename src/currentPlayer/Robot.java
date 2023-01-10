@@ -6,8 +6,10 @@ import java.util.Random;
 public class Robot {
 
     RobotController rc;
-    Random rng;
+    static Random rng;
     int turnCount = 0;
+
+    MapLocation homeHQ = null;
 
     /** Array containing all the possible movement directions. */
     static final Direction[] directions = {
@@ -33,6 +35,23 @@ public class Robot {
             turnCount=rc.getRoundNum();
         }
         turnCount += 1;
+        findHomeHQ();
+    }
+
+    public void findHomeHQ() throws GameActionException {
+        if (homeHQ == null) {
+            //set home HQ
+            int radius = rc.getType().visionRadiusSquared;
+            RobotInfo[] allies = rc.senseNearbyRobots(radius, rc.getTeam());
+            if (allies.length >= 0) {
+                for(int i = 0; i< allies.length; i++){
+                    if(allies[i].type == RobotType.HEADQUARTERS){
+                        homeHQ = allies[i].location;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
 }
