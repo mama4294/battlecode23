@@ -23,7 +23,7 @@ public class Carrier extends Robot {
             }
             if (islandLocs.size() > 0) {
                 MapLocation islandLocation = islandLocs.iterator().next();
-                rc.setIndicatorString("Moving my anchor towards " + islandLocation);
+                Debug.setString("Moving my anchor towards " + islandLocation);
                 while (!rc.getLocation().equals(islandLocation)) {
                     Direction dir = rc.getLocation().directionTo(islandLocation);
                     if (rc.canMove(dir)) {
@@ -31,7 +31,7 @@ public class Carrier extends Robot {
                     }
                 }
                 if (rc.canPlaceAnchor()) {
-                    rc.setIndicatorString("Huzzah, placed anchor!");
+                    Debug.setString("Huzzah, placed anchor!");
                     rc.placeAnchor();
                 }
             }
@@ -44,34 +44,34 @@ public class Carrier extends Robot {
                 if (rc.canCollectResource(wellLocation, -1)) {
                     if (rng.nextBoolean()) {
                         rc.collectResource(wellLocation, -1);
-                        rc.setIndicatorString("Collecting, now have, AD:" +
+                        Debug.setString("Collecting, now have, AD:" +
                                 rc.getResourceAmount(ResourceType.ADAMANTIUM) +
                                 " MN: " + rc.getResourceAmount(ResourceType.MANA) +
                                 " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
                     }
                 }
             }
-        }
-        // Occasionally try out the carriers attack
-        if (rng.nextInt(20) == 1) {
-            RobotInfo[] enemyRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-            if (enemyRobots.length > 0) {
-                if (rc.canAttack(enemyRobots[0].location)) {
-                    rc.attack(enemyRobots[0].location);
+            // Occasionally try out the carriers attack
+            if (rng.nextInt(20) == 1) {
+                RobotInfo[] enemyRobots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+                if (enemyRobots.length > 0) {
+                    if (rc.canAttack(enemyRobots[0].location)) {
+                        rc.attack(enemyRobots[0].location);
+                    }
                 }
             }
-        }
 
-        // If we can see a well, move towards it
-        WellInfo[] wells = rc.senseNearbyWells();
-        if (wells.length > 1 && rng.nextInt(3) == 1) {
-            WellInfo well_one = wells[1];
-            Direction dir = me.directionTo(well_one.getMapLocation());
+            // If we can see a well, move towards it
+            WellInfo[] wells = rc.senseNearbyWells();
+            if (wells.length > 1 && rng.nextInt(3) == 1) {
+                WellInfo well_one = wells[1];
+                Direction dir = me.directionTo(well_one.getMapLocation());
+                Nav.goTo(dir);
+            }
+            // Also try to move randomly.
+            Direction dir = directions[rng.nextInt(directions.length)];
             Nav.goTo(dir);
         }
-        // Also try to move randomly.
-        Direction dir = directions[rng.nextInt(directions.length)];
-        Nav.goTo(dir);
     }
 }
 

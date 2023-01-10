@@ -18,7 +18,7 @@ public class Launcher extends Robot{
             MapLocation toAttack = rc.getLocation().add(Direction.EAST);
 
             if (rc.canAttack(toAttack)) {
-                rc.setIndicatorString("Attacking");
+                Debug.setString("Attacking");
                 rc.attack(toAttack);
             }
         }

@@ -16,17 +16,17 @@ public class Headquarters extends Robot {
         if (rc.canBuildAnchor(Anchor.STANDARD)) {
             // If we can build an anchor do it!
             rc.buildAnchor(Anchor.STANDARD);
-            rc.setIndicatorString("Building anchor! " + rc.getAnchor());
+            Debug.setString("Building anchor! " + rc.getAnchor());
         }
         if (rng.nextBoolean()) {
             // Let's try to build a carrier.
-            rc.setIndicatorString("Trying to build a carrier");
+            Debug.setString("Trying to build a carrier");
             if (rc.canBuildRobot(RobotType.CARRIER, newLoc)) {
                 rc.buildRobot(RobotType.CARRIER, newLoc);
             }
         } else {
             // Let's try to build a launcher.
-            rc.setIndicatorString("Trying to build a launcher");
+            Debug.setString("Trying to build a launcher");
             if (rc.canBuildRobot(RobotType.LAUNCHER, newLoc)) {
                 rc.buildRobot(RobotType.LAUNCHER, newLoc);
             }
