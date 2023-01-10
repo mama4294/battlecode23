@@ -67,14 +67,11 @@ public class Carrier extends Robot {
         if (wells.length > 1 && rng.nextInt(3) == 1) {
             WellInfo well_one = wells[1];
             Direction dir = me.directionTo(well_one.getMapLocation());
-            if (rc.canMove(dir))
-                rc.move(dir);
+            Nav.goTo(dir);
         }
         // Also try to move randomly.
         Direction dir = directions[rng.nextInt(directions.length)];
-        if (rc.canMove(dir)) {
-            rc.move(dir);
-        }
+        Nav.goTo(dir);
     }
 }
 

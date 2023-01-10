@@ -24,6 +24,7 @@ public class Robot {
     public Robot(RobotController r) {
         this.rc = r;
         rng = new Random(rc.getRoundNum()*23981 + rc.getID()*10289);
+        Nav.init(rc);
 
     }
 
