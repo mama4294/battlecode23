@@ -10,6 +10,16 @@ public class Carrier extends Robot {
     int heldWeight = 0;
     boolean isFull = false;
 
+    State state = State.MINE;
+
+    enum State {
+
+        MINE,
+        EXPLORE,
+        RETURN,
+        ANCHORDELIVER,
+    }
+
     public Carrier(RobotController r) {
         super(r);
     }
@@ -18,32 +28,47 @@ public class Carrier extends Robot {
         super.takeTurn();
         heldWeight = getHeldWeight();
         isFull = heldWeight == 40;
-        bringAnchorToIsland();
+        setState();
 
-        if(!isFull){
-            MapLocation targetWell = getWellLoc();
-            if(targetWell != null){
-                collectFromWell(targetWell);
-                Nav.goTo(targetWell);
+        switch (state){
+            case MINE:
+                MapLocation targetWell = getWellLoc();
+                if(targetWell != null){
+                    collectFromWell(targetWell);
+                    Nav.goTo(targetWell);
+                    Debug.setString("Moving to well");
 
-            }else{
+                }else{
+                    Nav.moveRandomly();
+                    Debug.setString("Moving randomly");
+                }
+                break;
+            case EXPLORE:
                 Nav.moveRandomly();
-            }
+                Debug.setString("Moving randomly");
+                break;
+            case RETURN:
+                Debug.setString("Delivering paylod to homeHQ");
+                tryTransferToHomeHQ();
+                boolean isAdjecentToHomeHQ = rc.getLocation().isAdjacentTo(homeHQ);
+                if(!isAdjecentToHomeHQ){
+                    Nav.goTo(homeHQ);
+                }else{
+                    Nav.moveRandomly();
+                }
+            case ANCHORDELIVER:
+                Debug.setString("Taking anchor to island");
+                if(rc.canTakeAnchor(homeHQ, Anchor.STANDARD)){
+                    rc.takeAnchor(homeHQ, Anchor.STANDARD);
+                }
+                bringAnchorToIsland();
         }
-        else{
-            tryTransferToHomeHQ();
-            boolean isAdjecentToHomeHQ = rc.getLocation().isAdjacentTo(homeHQ);
-            if(!isAdjecentToHomeHQ){
-                Nav.goTo(homeHQ);
-            }else{
-                Nav.moveRandomly();
-            }
-          Debug.setString("I'm full");
-        }
+    }
 
-
-
-
+    public void setState() throws GameActionException{
+        if(isFull && state != State.RETURN) state = State.RETURN;
+        if(!isFull && rc.canTakeAnchor(homeHQ, Anchor.STANDARD)) state = State.ANCHORDELIVER;
+        if(!isFull && !rc.canTakeAnchor(homeHQ, Anchor.STANDARD)) state = State.MINE;
     }
 
     public void collectFromWell(MapLocation wellLocation) throws GameActionException{
