@@ -30,16 +30,45 @@ public class Nav{
     }
 
     // navigate towards a particular location
-    static boolean goTo(MapLocation destination) throws GameActionException {
-        Debug.setIndicatorLineYellow(destination);
-        if(!rc.isMovementReady())  return false;
+//    static boolean goTo(MapLocation destination) throws GameActionException {
+//        Debug.setIndicatorLineYellow(destination);
+//        if(!rc.isMovementReady())  return false;
+//
+//        if (rc.getLocation().equals(destination)) {
+//            return goTo(Direction.CENTER);
+//        } else {
+//            return goTo(rc.getLocation().directionTo(destination));
+//        }
+//    }
 
+
+    static boolean goTo(MapLocation destination) throws GameActionException {
+        if(!rc.isMovementReady())  return false;
         if (rc.getLocation().equals(destination)) {
-            return goTo(Direction.CENTER);
+            return false;
         } else {
-            return goTo(rc.getLocation().directionTo(destination));
+            Direction dir = rc.getLocation().directionTo(destination);
+            if (rc.canMove(dir)) {
+                rc.move(dir);
+                return true;
+            } else {
+                Direction left = dir.rotateLeft();
+                Direction right = dir.rotateRight();
+                if (rc.canMove(left)) {
+                    rc.move(left);
+                    return true;
+                } else if (rc.canMove(right)) {
+                    rc.move(right);
+                    return true;
+                }
+            }
         }
+        return false;
     }
+
+
+
+
 
     static void moveRandomly() throws GameActionException{
         Direction dir = directions[rng.nextInt(directions.length)];

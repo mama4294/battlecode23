@@ -10,7 +10,9 @@ public class Carrier extends Robot {
     int heldWeight = 0;
     boolean isFull = false;
 
-    State state = State.MINE;
+    MapLocation targetWell;
+
+    State state = State.EXPLORE;
 
     enum State {
 
@@ -29,69 +31,111 @@ public class Carrier extends Robot {
         heldWeight = getHeldWeight();
         isFull = heldWeight == 40;
         setState();
+        findWell();
+
+
 
         switch (state){
             case MINE:
-                MapLocation targetWell = getWellLoc();
-                if(targetWell != null){
+                if(targetWell != null) {
+                    Debug.setString("MINER: Moving to well");
                     collectFromWell(targetWell);
                     Nav.goTo(targetWell);
-                    Debug.setString("Moving to well");
-
                 }else{
                     Nav.moveRandomly();
-                    Debug.setString("Moving randomly");
+                    Debug.setString("MINER: Moving randomly");
                 }
                 break;
             case EXPLORE:
                 Nav.moveRandomly();
-                Debug.setString("Moving randomly");
+                Debug.setString("EXPORER: Moving randomly");
                 break;
             case RETURN:
-                Debug.setString("Delivering paylod to homeHQ");
+                Debug.setString("RETURNER: Delivering paylod to " + homeHQ);
                 tryTransferToHomeHQ();
                 boolean isAdjecentToHomeHQ = rc.getLocation().isAdjacentTo(homeHQ);
                 if(!isAdjecentToHomeHQ){
                     Nav.goTo(homeHQ);
-                }else{
-                    Nav.moveRandomly();
                 }
+                break;
             case ANCHORDELIVER:
-                Debug.setString("Taking anchor to island");
+                Debug.setString("ANCHOR: aking anchor to island");
                 if(rc.canTakeAnchor(homeHQ, Anchor.STANDARD)){
                     rc.takeAnchor(homeHQ, Anchor.STANDARD);
                 }
                 bringAnchorToIsland();
+                break;
         }
     }
 
-    public void setState() throws GameActionException{
-        if(isFull && state != State.RETURN) state = State.RETURN;
-        if(!isFull && rc.canTakeAnchor(homeHQ, Anchor.STANDARD)) state = State.ANCHORDELIVER;
-        if(!isFull && !rc.canTakeAnchor(homeHQ, Anchor.STANDARD)) state = State.MINE;
+    public void findWell() throws GameActionException {
+        if(targetWell == null){
+            targetWell = getWellLoc();
+        }
     }
 
-    public void collectFromWell(MapLocation wellLocation) throws GameActionException{
+
+
+
+    public void setState() throws GameActionException{
+
+        switch (state){
+            case MINE:
+                if(isFull){
+                    state = State.RETURN;
+                }
+                break;
+            case EXPLORE:
+                if(targetWell != null){
+                    state = State.MINE;
+                }
+        }
+
+        if(!isFull && rc.canTakeAnchor(homeHQ, Anchor.STANDARD)) state = State.ANCHORDELIVER;
+
+    }
+
+    public boolean collectFromWell(MapLocation wellLocation) throws GameActionException{
         if (rc.canCollectResource(wellLocation, -1)) {
+
                 rc.collectResource(wellLocation, -1);
                 Debug.setString("Collecting, now have, AD:" +
                         rc.getResourceAmount(ResourceType.ADAMANTIUM) +
                         " MN: " + rc.getResourceAmount(ResourceType.MANA) +
                         " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
+            return true;
 
         }
+        return false;
     }
 
-    public void tryTransferToHomeHQ() throws GameActionException{
-        if(rc.canTransferResource(homeHQ, ResourceType.ADAMANTIUM, rc.getResourceAmount(ResourceType.ADAMANTIUM))){
-            rc.transferResource(homeHQ, ResourceType.ADAMANTIUM, rc.getResourceAmount(ResourceType.ADAMANTIUM));
+    public boolean tryTransferToHomeHQ() throws GameActionException{
+        if(homeHQ == null) return false;
+        boolean transfered = false;
+        Debug.setIndicatorDotGreen(rc.getLocation());
+
+        int carriedAdmantium = rc.getResourceAmount(ResourceType.ADAMANTIUM);
+        int carriedMana = rc.getResourceAmount(ResourceType.MANA);
+        int carriedElixer = rc.getResourceAmount(ResourceType.ELIXIR);
+
+        if(carriedAdmantium > 0 && rc.canTransferResource(homeHQ, ResourceType.ADAMANTIUM, carriedAdmantium)){
+            Debug.setIndicatorDotYellow(homeHQ);
+            rc.transferResource(homeHQ, ResourceType.ADAMANTIUM, carriedAdmantium);
+            transfered = true;
         }
-        if(rc.canTransferResource(homeHQ, ResourceType.MANA, rc.getResourceAmount(ResourceType.MANA))){
-            rc.transferResource(homeHQ, ResourceType.MANA, rc.getResourceAmount(ResourceType.MANA));
+        if(carriedMana > 0 && rc.canTransferResource(homeHQ, ResourceType.MANA, carriedMana)){
+            Debug.setIndicatorDotBlue(homeHQ);
+            rc.transferResource(homeHQ, ResourceType.MANA, carriedMana);
+            transfered = true;
         }
-        if(rc.canTransferResource(homeHQ, ResourceType.ELIXIR, rc.getResourceAmount(ResourceType.ELIXIR))){
-            rc.transferResource(homeHQ, ResourceType.ELIXIR, rc.getResourceAmount(ResourceType.ELIXIR));
+        if(carriedElixer > 0 && rc.canTransferResource(homeHQ, ResourceType.ELIXIR, carriedElixer)){
+            Debug.setIndicatorDotGreen(homeHQ);
+            rc.transferResource(homeHQ, ResourceType.ELIXIR, carriedElixer);
+            transfered = true;
         }
+
+        if(transfered && getHeldWeight() < 40) state = State.EXPLORE;
+        return transfered;
     }
 
     public MapLocation getWellLoc() throws GameActionException{

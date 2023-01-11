@@ -20,6 +20,18 @@ public class Debug {
         if(showDebug && showYellow) rc.setIndicatorLine(rc.getLocation(),target, 255,255,0);
     }
 
+    public static void setIndicatorDotYellow (MapLocation target) throws GameActionException{
+        if(showDebug) rc.setIndicatorDot(target, 255,255,0);
+    }
+
+    public static void setIndicatorDotBlue (MapLocation target) throws GameActionException{
+        if(showDebug) rc.setIndicatorDot(target, 0,255,255);
+    }
+
+    public static void setIndicatorDotGreen (MapLocation target) throws GameActionException{
+        if(showDebug) rc.setIndicatorDot(target, 0,128,0);
+    }
+
 
 
 }
