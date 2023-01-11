@@ -9,6 +9,12 @@ public class Robot {
     static Random rng;
     int turnCount = 0;
 
+    static int explorationBoredom = 0;
+
+    static final int MAX_EXPLORE_BOREDOM = 50;
+
+    MapLocation explorationTarget = null;
+
     MapLocation homeHQ = null;
 
     /** Array containing all the possible movement directions. */
@@ -52,6 +58,29 @@ public class Robot {
                     }
                 }
             }
+        }
+    }
+
+
+    public void explore() throws GameActionException{
+        if(explorationTarget == null || explorationBoredom > MAX_EXPLORE_BOREDOM || rc.getLocation().distanceSquaredTo(explorationTarget) < rc.getType().actionRadiusSquared){
+            //create new exploration target
+            int width = rc.getMapWidth();
+            int height = rc.getMapHeight();
+
+            double randomX = Math.random()*width;
+            double randomY = Math.random()*height;
+
+            int randX = (int) randomX;
+            int randY = (int) randomY;
+
+            explorationTarget = new MapLocation(randX, randY);
+            explorationBoredom = 0;
+        }
+
+        if(explorationTarget != null){
+            explorationBoredom++;
+            Nav.goTo(explorationTarget);
         }
     }
 

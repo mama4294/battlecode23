@@ -52,7 +52,7 @@ public class Carrier extends Robot {
                 }
                 break;
             case EXPLORE:
-                Nav.moveRandomly();
+                explore();
                 Debug.setString(myResourceType + " EXPlORER: Moving randomly");
                 break;
             case RETURN:
@@ -64,7 +64,7 @@ public class Carrier extends Robot {
                 }
                 break;
             case ANCHORDELIVER:
-                Debug.setString("ANCHOR: aking anchor to island");
+                Debug.setString("ANCHOR: taking anchor to island");
                 if(rc.canTakeAnchor(homeHQ, Anchor.STANDARD)){
                     rc.takeAnchor(homeHQ, Anchor.STANDARD);
                 }
@@ -157,7 +157,7 @@ public class Carrier extends Robot {
         if(resource == null) return null;
         WellInfo[] wells = rc.senseNearbyWells(resource);
         if (wells.length > 0){
-            return wells[0].getMapLocation();
+            return Utils.getClosestWell(rc.getLocation(), wells); //finds closest well
         }
         return null;
     }
