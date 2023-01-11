@@ -121,7 +121,7 @@ public class Nav{
                         wallDirSet = true;
                     }
 
-                    Debug.consoleLog("Iteration"+ i + ", Closest Dist" + greedyDist);
+//                    Debug.consoleLog("Iteration"+ i + ", Closest Dist" + greedyDist);
                 }
                 dir = dir.rotateRight(); // try again with rotated direction
             }

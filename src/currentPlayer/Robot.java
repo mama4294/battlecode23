@@ -17,6 +17,9 @@ public class Robot {
 
     MapLocation homeHQ = null;
 
+    RobotInfo[] nearbyEnemies = null;
+    RobotInfo[] nearbyAllies = null;
+
     /** Array containing all the possible movement directions. */
     static final Direction[] directions = {
             Direction.NORTH,
@@ -43,6 +46,7 @@ public class Robot {
         }
         turnCount += 1;
         findHomeHQ();
+        senseNearybyRobots();
     }
 
     public void findHomeHQ() throws GameActionException {
@@ -82,6 +86,15 @@ public class Robot {
             explorationBoredom++;
             Nav.goTo(explorationTarget);
         }
+    }
+
+    public void senseNearybyRobots() throws GameActionException{
+        int radius = rc.getType().visionRadiusSquared;
+        Team opponent = rc.getTeam().opponent();
+        Team ally = rc.getTeam();
+        nearbyEnemies = rc.senseNearbyRobots(radius, opponent);
+        nearbyAllies = rc.senseNearbyRobots(radius, ally);
+
     }
 
 }

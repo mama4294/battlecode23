@@ -1,6 +1,7 @@
 package currentPlayer;
 
 import battlecode.common.MapLocation;
+import battlecode.common.RobotInfo;
 import battlecode.common.WellInfo;
 
 public class Utils {
@@ -16,5 +17,19 @@ public class Utils {
             }
         }
         return closestWell;
+    }
+
+
+    static MapLocation nearestRobot (MapLocation currentLoc, RobotInfo[] robots){
+        int closestDist = Integer.MAX_VALUE;
+        MapLocation closestRobot = null;
+
+        for(RobotInfo robot : robots){
+            if(currentLoc.distanceSquaredTo(robot.location) < closestDist){
+                closestDist = currentLoc.distanceSquaredTo(robot.location);
+                closestRobot = robot.location;
+            }
+        }
+        return closestRobot;
     }
 }

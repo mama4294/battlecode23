@@ -2,6 +2,8 @@ package currentPlayer;
 
 import battlecode.common.*;
 
+import javax.rmi.CORBA.Util;
+
 public class Launcher extends Robot{
     public Launcher(RobotController r) {
         super(r);
@@ -9,22 +11,28 @@ public class Launcher extends Robot{
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
-        // Try to attack someone
-        int radius = rc.getType().actionRadiusSquared;
-        Team opponent = rc.getTeam().opponent();
-        RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
-        if (enemies.length >= 0) {
-            // MapLocation toAttack = enemies[0].location;
-            MapLocation toAttack = rc.getLocation().add(Direction.EAST);
 
+        if(nearbyEnemies.length > 0) {
+            tryAttack();  // Try to attack someone
+        }else{
+            explore();
+        }
+    }
+
+    public void tryAttack() throws GameActionException {
+        RobotInfo[] enemies = nearbyEnemies;
+
+        if (enemies.length > 0) {
+            MapLocation toAttack = Utils.nearestRobot(rc.getLocation(), enemies);
             if (rc.canAttack(toAttack)) {
-                Debug.setString("Attacking");
                 rc.attack(toAttack);
             }
+            else{
+                Nav.goTo(toAttack);
+            }
         }
-
-        // Also try to move randomly.
-        Direction dir = directions[rng.nextInt(directions.length)];
-        Nav.goTo(dir);
     }
+
 }
+
+

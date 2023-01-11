@@ -9,14 +9,41 @@ public class Headquarters extends Robot {
         super(r);
     }
 
+    enum Strategy {
+        BUILD,
+        ATTACK
+    }
+
+    static Strategy strategy = Strategy.BUILD;
+
     public void takeTurn() throws GameActionException {
 
-        //try to build an anchor
-        tryBuildAnchor();
+        tryChangeStrategy();
+        enactStrategy();
 
-        //try to build a carrier
-        tryBuild(RobotType.CARRIER);
+    }
 
+    public void tryChangeStrategy() throws GameActionException {
+        if (rc.getRoundNum() < 100) {
+            strategy = Strategy.BUILD;
+        }else{
+            strategy = Strategy.ATTACK;
+        }
+    }
+
+    public void enactStrategy() throws GameActionException {
+          switch (strategy) {
+                case BUILD:
+                    tryBuild(RobotType.CARRIER);
+                    break;
+                case ATTACK:
+                    if(rng.nextBoolean()) {
+                        tryBuild(RobotType.LAUNCHER);
+                    }else{
+                        tryBuild(RobotType.CARRIER);
+                    }
+                    break;
+            }
     }
 
     public boolean tryBuild(RobotType type) throws GameActionException {
@@ -44,6 +71,6 @@ public class Headquarters extends Robot {
         }
         return false;
     }
-        
+
 
 }
