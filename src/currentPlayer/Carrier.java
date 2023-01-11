@@ -36,14 +36,13 @@ public class Carrier extends Robot {
         findWell();       //Sets targetWell if null
         tryChangeState(); //Ex: change from an Explorer to a Miner if there is a well nearby
         runStateAction(); //Ex: if you are a Miner, mine
-        Debug.setString("Target Well: " + targetWell);
     }
 
     public void runStateAction() throws GameActionException{
         switch (state){
             case MINE:
                 if(targetWell != null) {
-                    Debug.setString(myResourceType + " Miner: Moving to well");
+                    Debug.setString(myResourceType + " Miner: Moving to well at: " + targetWell);
                     collectFromWell(targetWell);
                     Nav.goTo(targetWell);
                 }else{
@@ -53,7 +52,7 @@ public class Carrier extends Robot {
                 break;
             case EXPLORE:
                 explore();
-                Debug.setString(myResourceType + " EXPlORER: Moving randomly");
+                Debug.setString(myResourceType + " EXPlORER: exploring to " + explorationTarget);
                 break;
             case RETURN:
                 Debug.setString(myResourceType + " RETURNER: Delivering paylod to " + homeHQ);

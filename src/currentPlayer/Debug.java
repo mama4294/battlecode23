@@ -12,6 +12,12 @@ public class Debug {
         static final boolean showDebug = true;
         static final boolean showYellow = true;
 
+     public static void consoleLog (String s) {
+         if (showDebug) {
+             System.out.println(s);
+         }
+     }
+
     public static void setString (String message) throws GameActionException{
         if(showDebug)  rc.setIndicatorString(message);
     }
