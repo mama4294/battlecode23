@@ -28,6 +28,7 @@ public class Robot {
         rng = new Random(rc.getRoundNum()*23981 + rc.getID()*10289);
         Debug.init(rc);
         Nav.init(rc);
+        Comms.init(rc);
     }
 
     public void takeTurn() throws GameActionException {
