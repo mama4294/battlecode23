@@ -10,6 +10,8 @@ public class Carrier extends Robot {
     int heldWeight = 0;
     boolean isFull = false;
 
+    ResourceType myResourceType = null;
+
     MapLocation targetWell;
 
     State state = State.EXPLORE;
@@ -29,29 +31,32 @@ public class Carrier extends Robot {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         heldWeight = getHeldWeight();
-        isFull = heldWeight == 40;
-        setState();
-        findWell();
+        isFull = heldWeight >= 39;
+        getMinerType();   //Sets myResourceType (Adamantium, Mana, Elixir)
+        findWell();       //Sets targetWell if null
+        tryChangeState(); //Ex: change from an Explorer to a Miner if there is a well nearby
+        runStateAction(); //Ex: if you are a Miner, mine
+        Debug.setString("Target Well: " + targetWell);
+    }
 
-
-
+    public void runStateAction() throws GameActionException{
         switch (state){
             case MINE:
                 if(targetWell != null) {
-                    Debug.setString("MINER: Moving to well");
+                    Debug.setString(myResourceType + " Miner: Moving to well");
                     collectFromWell(targetWell);
                     Nav.goTo(targetWell);
                 }else{
                     Nav.moveRandomly();
-                    Debug.setString("MINER: Moving randomly");
+                    Debug.setString(myResourceType + " Miner: Moving randomly");
                 }
                 break;
             case EXPLORE:
                 Nav.moveRandomly();
-                Debug.setString("EXPORER: Moving randomly");
+                Debug.setString(myResourceType + " EXPlORER: Moving randomly");
                 break;
             case RETURN:
-                Debug.setString("RETURNER: Delivering paylod to " + homeHQ);
+                Debug.setString(myResourceType + " RETURNER: Delivering paylod to " + homeHQ);
                 tryTransferToHomeHQ();
                 boolean isAdjecentToHomeHQ = rc.getLocation().isAdjacentTo(homeHQ);
                 if(!isAdjecentToHomeHQ){
@@ -69,15 +74,25 @@ public class Carrier extends Robot {
     }
 
     public void findWell() throws GameActionException {
-        if(targetWell == null){
-            targetWell = getWellLoc();
+        if(targetWell == null && myResourceType != null){
+            targetWell = getWellLoc(myResourceType);
+        }
+    }
+
+    public void getMinerType() throws GameActionException {
+        if(myResourceType == null){
+            if(rc.getRoundNum() % 2 ==0 ){
+                myResourceType = ResourceType.ADAMANTIUM;
+            }else{
+                myResourceType = ResourceType.MANA;
+            }
         }
     }
 
 
 
 
-    public void setState() throws GameActionException{
+    public void tryChangeState() throws GameActionException{
 
         switch (state){
             case MINE:
@@ -138,10 +153,11 @@ public class Carrier extends Robot {
         return transfered;
     }
 
-    public MapLocation getWellLoc() throws GameActionException{
-        WellInfo[] wells = rc.senseNearbyWells();
-        if (wells.length > 1){
-            return wells[1].getMapLocation();
+    public MapLocation getWellLoc(ResourceType resource) throws GameActionException{
+        if(resource == null) return null;
+        WellInfo[] wells = rc.senseNearbyWells(resource);
+        if (wells.length > 0){
+            return wells[0].getMapLocation();
         }
         return null;
     }
