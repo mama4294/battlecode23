@@ -1,4 +1,4 @@
-package currentPlayer;
+package testPlayerV1;
 import battlecode.common.*;
 
 import java.util.Arrays;
@@ -173,22 +173,21 @@ public class Carrier extends Robot {
             Set<MapLocation> islandLocs = new HashSet<>();
             for (int id : islands) {
                 MapLocation[] thisIslandLocs = rc.senseNearbyIslandLocations(id);
-                if(rc.senseAnchor(id) == null) { //add island if not already anchored
-                    islandLocs.addAll(Arrays.asList(thisIslandLocs));
-                }
+                islandLocs.addAll(Arrays.asList(thisIslandLocs));
             }
             if (islandLocs.size() > 0) {
                 MapLocation islandLocation = islandLocs.iterator().next();
-                Debug.setString("ANCHOR: Moving my anchor towards " + islandLocation);
+                Debug.setString("Moving my anchor towards " + islandLocation);
+                while (!rc.getLocation().equals(islandLocation)) {
+                    Direction dir = rc.getLocation().directionTo(islandLocation);
+                    if (rc.canMove(dir)) {
+                        rc.move(dir);
+                    }
+                }
                 if (rc.canPlaceAnchor()) {
                     Debug.setString("Huzzah, placed anchor!");
                     rc.placeAnchor();
-                    state = State.EXPLORE;
                 }
-                Nav.goTo(islandLocation);
-            }else{
-                explore();
-                Debug.setString("ANCHOR: exploring to " + explorationTarget);
             }
         }
     }

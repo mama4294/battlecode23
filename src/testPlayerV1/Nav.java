@@ -1,8 +1,12 @@
-package currentPlayer;
-import battlecode.common.*;
+package testPlayerV1;
 
-import static currentPlayer.Robot.directions;
-import static currentPlayer.Robot.rng;
+import battlecode.common.Direction;
+import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
+import battlecode.common.RobotController;
+
+import static testPlayerV1.Robot.directions;
+import static testPlayerV1.Robot.rng;
 
 public class Nav{
         static RobotController rc;

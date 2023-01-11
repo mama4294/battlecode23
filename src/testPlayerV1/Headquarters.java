@@ -1,6 +1,5 @@
-package currentPlayer;
+package testPlayerV1;
 import battlecode.common.*;
-
 
 
 public class Headquarters extends Robot {
@@ -10,12 +9,11 @@ public class Headquarters extends Robot {
     }
 
     enum Strategy {
-        BUILD_CARRIERS,
-        GENTLE_ATTACK,
-        ANCHORS,
+        BUILD,
+        ATTACK
     }
 
-    static Strategy strategy = Strategy.BUILD_CARRIERS;
+    static Strategy strategy = Strategy.BUILD;
 
     public void takeTurn() throws GameActionException {
 
@@ -26,34 +24,23 @@ public class Headquarters extends Robot {
 
     public void tryChangeStrategy() throws GameActionException {
         if (rc.getRoundNum() < 100) {
-            strategy = Strategy.BUILD_CARRIERS;
-        }else if(rc.getRoundNum() < 350){
-            strategy = Strategy.GENTLE_ATTACK;
+            strategy = Strategy.BUILD;
         }else{
-            strategy = Strategy.ANCHORS;
+            strategy = Strategy.ATTACK;
         }
     }
 
     public void enactStrategy() throws GameActionException {
           switch (strategy) {
-                case BUILD_CARRIERS:
+                case BUILD:
                     tryBuild(RobotType.CARRIER);
-                    Debug.setString("Building Carriers");
                     break;
-                case GENTLE_ATTACK:
-                    int buildInt = rng.nextInt(100);
-                    Debug.setString("Building carriers and launchers");
-                    if(buildInt > 50) {
-                        tryBuildAnchor();
-                    }else if(buildInt > 25){
-                        tryBuild(RobotType.CARRIER);
-                    }else{
+                case ATTACK:
+                    if(rng.nextBoolean()) {
                         tryBuild(RobotType.LAUNCHER);
+                    }else{
+                        tryBuild(RobotType.CARRIER);
                     }
-                    break;
-                case ANCHORS:
-                    Debug.setString("Building anchors");
-                    tryBuildAnchor();
                     break;
             }
     }
@@ -72,10 +59,15 @@ public class Headquarters extends Robot {
     }
 
     public boolean tryBuildAnchor() throws GameActionException {
+        if(rc.getResourceAmount(ResourceType.ADAMANTIUM) < Anchor.STANDARD.adamantiumCost || rc.getResourceAmount(ResourceType.MANA) > Anchor.STANDARD.manaCost) return false;
+        MapLocation currentLocation = rc.getLocation();
+        for(int i = 0; i < directions.length; i++) {
+            Direction dir = directions[i];
             if (rc.canBuildAnchor(Anchor.STANDARD)) {
                 rc.buildAnchor(Anchor.STANDARD);
                 return true;
             }
+        }
         return false;
     }
 
