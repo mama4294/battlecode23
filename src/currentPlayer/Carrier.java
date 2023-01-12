@@ -44,7 +44,13 @@ public class Carrier extends Robot {
                 if(targetWell != null) {
                     Debug.setString(myResourceType + " Miner: Moving to well at: " + targetWell);
                     collectFromWell(targetWell);
-                    Nav.goTo(targetWell);
+                    boolean isAdjactentToWell = rc.getLocation().isAdjacentTo(targetWell);
+                            if(isAdjactentToWell){
+                                //stay put
+                            }else{
+                                Nav.goTo(targetWell);
+                            }
+
                 }else{
                     Nav.moveRandomly();
                     Debug.setString(myResourceType + " Miner: Moving randomly");
