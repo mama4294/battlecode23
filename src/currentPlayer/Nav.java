@@ -11,7 +11,13 @@ public class Nav{
         static int closestDistToTargetSoFar = Integer.MAX_VALUE;
 
         static Direction lastMoveDir = Direction.NORTH;
-        static MapLocation lastWallChecked = null;
+        static MapLocation lastTarget = null;
+
+        enum BugNavMode {
+            FREE_PATHING,
+            WALL_WALKING
+    }
+        static BugNavMode bugNavMode = BugNavMode.FREE_PATHING;
 
         public static void init(RobotController r) {
             rc = r;
@@ -33,13 +39,24 @@ public class Nav{
     }
 
     static boolean goTo(MapLocation destination) throws GameActionException {
+            //Reset if new target
+            if(destination != lastTarget){
+                closestDistToTargetSoFar = Integer.MAX_VALUE;
+            }
+            lastTarget = destination;
         if(!rc.isMovementReady())  return false;
         if (rc.getLocation().equals(destination)) return false;
 
+
         //Bug pathing to find best direction
+//        Direction bestDir = BFS.getDirFromBFS(destination);
         Direction bestDir = getBugNavDir(destination);
-        Debug.consoleLog("best Bug path Dir " + bestDir);
-        goTo(bestDir);
+        if(bestDir != null){
+            goTo(bestDir);
+        }else{
+            fuzzyNavTo(destination);
+        }
+
 
         return false;
     }
@@ -72,12 +89,10 @@ public class Nav{
 
     //bugnav to a location
     static Direction getBugNavDir(MapLocation destination) throws GameActionException {
-            //TODO add dangerous locations to avoid
+        //TODO add dangerous locations to avoid
         roundsSinceLastReset++;
-        if(!rc.isMovementReady()) return Direction.CENTER;;
+        if (!rc.isMovementReady()) return Direction.CENTER;
         if (rc.getLocation().equals(destination)) return Direction.CENTER;
-
-        Debug.consoleLog("BugNav to " + destination);
 
         // every 20 rounds, reset the closest distance
         if (roundsSinceLastReset >= 20) {
@@ -88,53 +103,39 @@ public class Nav{
         //setup for iteration
         Direction dir = lastMoveDir;
         Direction greedyDir = null;
-        Direction wallDir = lastMoveDir;
-        boolean lastWallUpdated = false;
         int closestGreedyDist = Integer.MAX_VALUE;
-        boolean wallDirSet = false;
 
-        if (lastWallChecked != null) {
-            wallDir = rc.getLocation().directionTo(lastWallChecked);
-            dir = rc.getLocation().directionTo(lastWallChecked);
-        }
-
-        //iterate through directions
-        for (int i = 8; --i >= 0; ) {
-
-            //Find the direction that is closest to the target (greedyDir)
-                MapLocation potentialLoc = rc.adjacentLocation(dir);
-                int greedyDist = potentialLoc.distanceSquaredTo(destination);
-                if (greedyDist < closestGreedyDist && rc.canSenseLocation(potentialLoc) && rc.canMove(dir)) {
-                    closestGreedyDist = greedyDist;
-                    greedyDir = dir;
-                }
-
-                //Keep your left hand on the wall. Find that direction (wallDir)
-                Direction potentialWallDir = dir.rotateLeft().rotateLeft();
-                MapLocation potentialWallLoc = rc.adjacentLocation(wallDir);
-
-                if (!wallDirSet) {
-                    if (rc.canSenseLocation(potentialWallLoc) && rc.canMove(potentialWallDir)) {
-                        wallDir = potentialWallDir;
-                        wallDirSet = true;
-                    }
-
-//                    Debug.consoleLog("Iteration"+ i + ", Closest Dist" + greedyDist);
-                }
-                dir = dir.rotateRight(); // try again with rotated direction
+        //Check to see if you can get closer to the target than ever before.
+        for (int i = 8; --i >= 0; dir = dir.rotateRight()) {
+            MapLocation potentialLoc = rc.adjacentLocation(dir);
+            int dist = potentialLoc.distanceSquaredTo(destination);
+            if (dist < closestGreedyDist && rc.canSenseLocation(potentialLoc) && rc.canMove(dir)) {
+                closestGreedyDist = dist;
+                greedyDir = dir;
             }
-
-        //Check if breaking off from the wall is a good idea
+        }
         if (closestGreedyDist < closestDistToTargetSoFar) {
-            closestDistToTargetSoFar = closestGreedyDist;
             lastMoveDir = greedyDir;
+            closestDistToTargetSoFar = closestGreedyDist;
             return greedyDir;
         }
-        //Else keep following the wall
-        lastMoveDir = wallDir;
-        return wallDir;
 
+
+        //Else, wall walk
+        dir = lastMoveDir;
+        for (int i = 8; --i >= 0; dir = dir.rotateRight()) {
+            if (rc.canMove(dir)) {
+                lastMoveDir = dir;
+                return dir;
+            }
         }
+
+        return null;
+    }
+
+
+
+
 
 
 

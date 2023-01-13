@@ -42,7 +42,6 @@ public class Nav{
 
         //Bug pathing to find best direction
         Direction bestDir = getBugNavDir(destination);
-        Debug.setString("best BFS path Dir " + bestDir);
         Debug.setIndicatorDotGreen(destination);
         goTo(bestDir);
 

@@ -38,6 +38,7 @@ public class Robot {
         Debug.init(rc);
         Nav.init(rc);
         Comms.init(rc);
+        BFS.init(rc);
     }
 
     public void takeTurn() throws GameActionException {
