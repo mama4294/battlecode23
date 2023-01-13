@@ -1,4 +1,4 @@
-package testPlayerV1;
+package currentPlayer;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;
