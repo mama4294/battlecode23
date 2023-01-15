@@ -5,8 +5,8 @@ import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 
-import static currentPlayer.Robot.directions;
-import static currentPlayer.Robot.rng;
+import static testPlayerV2.Robot.directions;
+import static testPlayerV2.Robot.rng;
 
 public class Nav{
         static RobotController rc;

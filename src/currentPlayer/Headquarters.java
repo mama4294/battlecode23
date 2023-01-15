@@ -30,11 +30,12 @@ public class Headquarters extends Robot {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
+        if(rc.getRoundNum() == 1) Comms.reportHQLocation(); //write location to shared array;
         scanForNearbyWells();
         checkIfUnderAttack();
         tryChangeStrategy();
         enactStrategy();
-
+        Debug.setString("I am robot number: " + robotNumber);
     }
 
     public void tryChangeStrategy() throws GameActionException {

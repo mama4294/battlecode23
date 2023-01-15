@@ -1,13 +1,19 @@
 package currentPlayer;
 import battlecode.common.Direction;
+
 import battlecode.common.*;
+
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 public class Robot {
 
     RobotController rc;
     static Random rng;
     int turnCount = 0;
+
+    int robotNumber;
 
     static int explorationBoredom = 0;
 
@@ -17,8 +23,12 @@ public class Robot {
 
     MapLocation homeHQ = null;
 
+    MapLocation[] hqLocations;
+
     RobotInfo[] nearbyEnemies = null;
     RobotInfo[] nearbyAllies = null;
+
+
 
     /** Array containing all the possible movement directions. */
     static final Direction[] directions = {
@@ -45,9 +55,14 @@ public class Robot {
         if(turnCount==0){
             turnCount=rc.getRoundNum();
         }
+        if(hqLocations == null){
+            hqLocations = Comms.getHQLocations();
+        }
         turnCount += 1;
         findHomeHQ();
         senseNearybyRobots();
+        robotNumber = Comms.reportAlive();
+        senseNearbyIslands();
     }
 
     public void findHomeHQ() throws GameActionException {
@@ -95,7 +110,15 @@ public class Robot {
         Team ally = rc.getTeam();
         nearbyEnemies = rc.senseNearbyRobots(radius, opponent);
         nearbyAllies = rc.senseNearbyRobots(radius, ally);
+    }
 
+    public void senseNearbyIslands() throws GameActionException{
+        int[] islandLocations = rc.senseNearbyIslands();
+        if(islandLocations.length > 0){
+            for(int i = 0; i < islandLocations.length; i++){
+                Comms.updateIslandInfo(islandLocations[i]);
+            }
+        }
     }
 
 }

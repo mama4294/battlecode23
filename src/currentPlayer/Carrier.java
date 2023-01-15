@@ -4,6 +4,7 @@ import battlecode.common.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CompletionService;
 
 public class Carrier extends Robot {
 
@@ -12,7 +13,10 @@ public class Carrier extends Robot {
 
     ResourceType myResourceType = null;
 
+
     MapLocation targetWell;
+
+    Set<MapLocation> neutralIslandLocations = new HashSet<>();
 
     State state = State.EXPLORE;
 
@@ -30,6 +34,7 @@ public class Carrier extends Robot {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
+        neutralIslandLocations = Comms.getNeutralIslandLocations();
         heldWeight = getHeldWeight();
         isFull = heldWeight >= 39;
         getMinerType();   //Sets myResourceType (Adamantium, Mana, Elixir)
@@ -174,24 +179,16 @@ public class Carrier extends Robot {
 
     public void bringAnchorToIsland() throws GameActionException{
         if (rc.getAnchor() != null) {
-            // If I have an anchor singularly focus on getting it to the first island I see
-            int[] islands = rc.senseNearbyIslands();
-            Set<MapLocation> islandLocs = new HashSet<>();
-            for (int id : islands) {
-                MapLocation[] thisIslandLocs = rc.senseNearbyIslandLocations(id);
-                if(rc.senseAnchor(id) == null) { //add island if not already anchored
-                    islandLocs.addAll(Arrays.asList(thisIslandLocs));
-                }
-            }
-            if (islandLocs.size() > 0) {
-                MapLocation islandLocation = islandLocs.iterator().next();
-                Debug.setString("ANCHOR: Moving my anchor towards " + islandLocation);
-                if (rc.canPlaceAnchor()) {
+            // If I have an anchor singularly focus on getting it to the nearest neutral island
+            if (neutralIslandLocations.size() > 0) {
+                MapLocation nearestNeutralIsland = Utils.nearestLocation(rc.getLocation(), neutralIslandLocations);
+                Debug.setString("ANCHOR: Moving my anchor towards " + nearestNeutralIsland);
+                if (rc.canPlaceAnchor() && rc.getLocation().isAdjacentTo(nearestNeutralIsland)) {
                     Debug.setString("Huzzah, placed anchor!");
                     rc.placeAnchor();
                     state = State.EXPLORE;
                 }
-                Nav.goTo(islandLocation);
+                Nav.goTo(nearestNeutralIsland);
             }else{
                 explore();
                 Debug.setString("ANCHOR: exploring to " + explorationTarget);
