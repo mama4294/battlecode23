@@ -1,8 +1,7 @@
 package currentPlayer;
 import battlecode.common.*;
 
-import static currentPlayer.Robot.directions;
-import static currentPlayer.Robot.rng;
+import static currentPlayer.Robot.*;
 
 public class Nav{
         static RobotController rc;
@@ -10,7 +9,6 @@ public class Nav{
         static int roundsSinceLastReset = 0;
         static int closestDistToTargetSoFar = Integer.MAX_VALUE;
 
-        static Direction lastMoveDir = Direction.NORTH;
         static MapLocation lastTarget = null;
         static Direction currecntDirection = null;
 
@@ -97,7 +95,12 @@ public class Nav{
     public static Direction getBugNavDir(MapLocation target) throws GameActionException {
 
         if(!lastTarget.equals(target))closestDistToTargetSoFar = Integer.MAX_VALUE; //reset if new target
+        if(roundsSinceLastReset > 50){ //reset every so often
+            roundsSinceLastReset = 0;
+            closestDistToTargetSoFar = Integer.MAX_VALUE;
+        }
         lastTarget = target;
+        roundsSinceLastReset++;
 
         if (rc.getLocation().equals(target)) return Direction.CENTER; //if you are already there, do nothing
         if (!rc.isMovementReady()) return Direction.CENTER; //if you can't move, do nothing
