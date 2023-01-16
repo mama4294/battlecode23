@@ -35,6 +35,7 @@ public class Carrier extends Robot {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         neutralIslandLocations = Comms.getNeutralIslandLocations();
+        findNearbyNeutralIslands();
         heldWeight = getHeldWeight();
         isFull = heldWeight >= 39;
         getMinerType();   //Sets myResourceType (Adamantium, Mana, Elixir)
@@ -80,6 +81,17 @@ public class Carrier extends Robot {
                 }
                 bringAnchorToIsland();
                 break;
+        }
+    }
+
+    public void findNearbyNeutralIslands() throws GameActionException{
+        int[] nearbyIslandIds = rc.senseNearbyIslands();
+        for(int id : nearbyIslandIds){
+            Team islandTeam = rc.senseTeamOccupyingIsland(id);
+            if(islandTeam == Team.NEUTRAL && rc.readSharedArray(id + Comms.INDEX_ISLANDS_START -1) == 0){ //shared array does not contain this island
+               MapLocation[] islandLocations = rc.senseNearbyIslandLocations(id);
+                neutralIslandLocations.add(islandLocations[0]);
+            }
         }
     }
 
