@@ -1,8 +1,8 @@
 package currentPlayer;
 
 import battlecode.common.*;
+
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class Comms {
@@ -37,11 +37,10 @@ public class Comms {
         static final int IDX_NUM_AMPLIFIERS_ODD = 16;
 
 
-        static final int INDEX_MESSAGE_CODE = 17;
-        static final int INDEX_MESSAGE_X = 18;
-        static final int INDEX_MESSAGE_Y = 19;
+        static final int INDEX_ISLANDS_START = 17; //Next 34 ints are for island locations
 
-        static final int INDEX_ISLANDS_START = 20; //Next 32 ints are for island locations
+        static  final int INDEX_MINE_LOC_ADAMANTIUM = 51;
+        static  final int INDEX_MINE_LOC_MANA = 52;
 
         enum MessageCode {
                 ADAMANTIUM_MINE_LOC,
@@ -99,6 +98,33 @@ public class Comms {
         public static MapLocation readIslandLocation(int encodedMsg) throws GameActionException{
                 int locationInt = encodedMsg >> (TOTAL_BITS- LOCATION_BITS);
                 return intToLocation(locationInt);
+        }
+
+        public static void broadcastMineLocation(WellInfo well) throws GameActionException{
+                int encodedMsg = locationToInt(well.getMapLocation());
+               ResourceType type = well.getResourceType();
+                switch (type){
+                        case ADAMANTIUM:
+                                if(rc.canWriteSharedArray(INDEX_MINE_LOC_ADAMANTIUM, encodedMsg)){
+                                        rc.writeSharedArray(INDEX_MINE_LOC_ADAMANTIUM, encodedMsg);
+                                }
+                                break;
+                        case MANA:
+                                if(rc.canWriteSharedArray(INDEX_MINE_LOC_MANA, encodedMsg)){
+                                        rc.writeSharedArray(INDEX_MINE_LOC_MANA, encodedMsg);
+                                }
+                                break;
+                }
+        }
+
+        public static MapLocation readMineLocationFromSharedArray (ResourceType type) throws GameActionException{
+                switch (type){
+                        case ADAMANTIUM:
+                                return intToLocation(rc.readSharedArray(INDEX_MINE_LOC_ADAMANTIUM));
+                        case MANA:
+                                return intToLocation(rc.readSharedArray(INDEX_MINE_LOC_MANA));
+                }
+                return null;
         }
 
 
@@ -219,26 +245,7 @@ public class Comms {
                 return islandLocs;
         }
 
-        public static void reportMineLocation(MapLocation location, ResourceType mineType) throws GameActionException {
-                int msg = 0;
-                switch (mineType){
-                        case ADAMANTIUM:
-                                msg = MessageCode.ADAMANTIUM_MINE_LOC.ordinal()+MESSAGE_OFFSET;
-                                break;
-                        case MANA:
-                                msg =MessageCode.ELIXIR_MINER_LOC.ordinal()+MESSAGE_OFFSET;
-                                break;
-                        case ELIXIR:
-                                msg = MessageCode.MANA_MINER_LOC.ordinal()+MESSAGE_OFFSET;
-                                break;
-                }
 
-                if(msg != 0 && location != null){
-                        if(rc.canWriteSharedArray(INDEX_MESSAGE_CODE, msg)) rc.writeSharedArray(INDEX_MESSAGE_CODE, msg);
-                        if(rc.canWriteSharedArray(INDEX_MESSAGE_X, location.x)) rc.writeSharedArray(INDEX_MESSAGE_X, location.x);
-                        if(rc.canWriteSharedArray(INDEX_MESSAGE_Y, location.y)) rc.writeSharedArray(INDEX_MESSAGE_Y, location.y);
-                }
-        }
 
 
 

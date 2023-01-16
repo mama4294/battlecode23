@@ -30,8 +30,15 @@ public class Headquarters extends Robot {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
-        if(rc.getRoundNum() == 1) Comms.reportHQLocation(); //write location to shared array;
-        scanForNearbyWells();
+        if(rc.getRoundNum() == 1){
+            Comms.reportHQLocation(); //write location to shared array;
+
+        }
+        if(rc.getRoundNum() <= 5){
+            scanForNearbyWells(); //find nearby wells and broadcasts their locations
+            updateWellLocsFromSharedArray(); //read from shared array
+        }
+
         checkIfUnderAttack();
         tryChangeStrategy();
         enactStrategy();
@@ -53,23 +60,52 @@ public class Headquarters extends Robot {
     }
 
     public void scanForNearbyWells() throws GameActionException {
+        //Adamantium
         WellInfo[] adamantiumsWells = rc.senseNearbyWells(ResourceType.ADAMANTIUM); //find adamatium wells
         if (adamantiumsWells.length > 0) {  //if there are any
+            boolean didBroadcastMsg = false;
             for (WellInfo wellToAdd : adamantiumsWells) {  //for each well
                 if (!minesLocsAdamantium.contains(wellToAdd.getMapLocation())) { //if we don't already know about it
                     minesLocsAdamantium.add(wellToAdd.getMapLocation()); //add it to the list
+                    if(!didBroadcastMsg && rc.getRoundNum() == robotNumber){ //Only one HQ should broadcast at a time
+                        Comms.broadcastMineLocation(wellToAdd); //broadcast it
+                        didBroadcastMsg = true;
+                    }
+
                 }
             }
         }
-
-        WellInfo[] mamaWells = rc.senseNearbyWells(ResourceType.MANA); //find adamatium wells
+        //Mana
+        WellInfo[] mamaWells = rc.senseNearbyWells(ResourceType.MANA); //find mana wells
         if (mamaWells.length > 0) {  //if there are any
+            boolean didBroadcastMsg = false;
             for (WellInfo wellToAdd : mamaWells) {  //for each well
                 if (!minesLocsMana.contains(wellToAdd.getMapLocation())) { //if we don't already know about it
                     minesLocsMana.add(wellToAdd.getMapLocation()); //add it to the list
+                    if(!didBroadcastMsg && rc.getRoundNum() == robotNumber){ //Only one HQ should broadcast at a time
+                        Comms.broadcastMineLocation(wellToAdd); //broadcast it
+                        didBroadcastMsg = true;
+                    }
                 }
             }
         }
+    }
+
+
+
+    public void updateWellLocsFromSharedArray () throws GameActionException{
+        //Adamantium
+        MapLocation wellToAdd = Comms.readMineLocationFromSharedArray(ResourceType.ADAMANTIUM);
+        if (!minesLocsAdamantium.contains(wellToAdd)) { //if we don't already know about it
+            minesLocsAdamantium.add(wellToAdd);
+        }
+
+
+         //Mana
+         wellToAdd = Comms.readMineLocationFromSharedArray(ResourceType.MANA);
+            if (!minesLocsMana.contains(wellToAdd)) { //if we don't already know about it
+                minesLocsMana.add(wellToAdd);
+            }
     }
 
     public void enactStrategy() throws GameActionException {
@@ -134,7 +170,7 @@ public class Headquarters extends Robot {
 
         if(minesLocs.size() > 0){
             //Find optimal location to build carrier near mine
-            MapLocation optimalBuildLocation = getLocNearestToDestInActionRadius(minesLocs.get(0));
+            MapLocation optimalBuildLocation = getLocNearestToDestInActionRadius(RobotType.CARRIER, minesLocs.get(0));
             if (optimalBuildLocation != null &&rc.canBuildRobot(RobotType.CARRIER, optimalBuildLocation)) {
                 rc.buildRobot(RobotType.CARRIER, optimalBuildLocation);
                 return true;
@@ -173,16 +209,16 @@ public class Headquarters extends Robot {
         return false;
     }
 
-    private MapLocation getLocNearestToDestInActionRadius( MapLocation destination) throws GameActionException{
+    private MapLocation getLocNearestToDestInActionRadius(RobotType type, MapLocation destination) throws GameActionException{
         //finds the nearest location within action radius of the destination
         MapLocation bestLoc = null;
-        MapLocation locToCheck = null;
+        MapLocation locToCheck;
         int closesdDist = Integer.MAX_VALUE;
         MapLocation[] possibleLocs = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), rc.getType().visionRadiusSquared);
 
         for(int i=possibleLocs.length; --i>=0;){
             locToCheck = possibleLocs[i];
-            if(rc.canSenseLocation(locToCheck) && !rc.isLocationOccupied(locToCheck) && destination.distanceSquaredTo(locToCheck) < closesdDist){
+            if(rc.canBuildRobot(type, locToCheck) && destination.distanceSquaredTo(locToCheck) < closesdDist){
                 bestLoc = locToCheck;
                 closesdDist = destination.distanceSquaredTo(locToCheck);
             }
