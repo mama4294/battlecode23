@@ -153,7 +153,7 @@ public class Headquarters extends Robot {
     }
 
     private void checkIfUnderAttack() throws GameActionException {
-        isUnderAttack = nearbyEnemies.length > nearbyAllies.length;
+        isUnderAttack = nearbyEnemies.length > 0;
         if(isUnderAttack){
             turnsSinceAttach = 0;
         }else{
