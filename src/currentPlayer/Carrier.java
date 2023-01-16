@@ -1,10 +1,8 @@
 package currentPlayer;
 import battlecode.common.*;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CompletionService;
 
 public class Carrier extends Robot {
 
@@ -34,7 +32,7 @@ public class Carrier extends Robot {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
-        neutralIslandLocations = Comms.getNeutralIslandLocations();
+        neutralIslandLocations = Comms.getTeamIslandLocations(Team.NEUTRAL);
         findNearbyNeutralIslands();
         heldWeight = getHeldWeight();
         isFull = heldWeight >= 39;

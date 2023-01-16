@@ -95,7 +95,7 @@ public class Nav{
     public static Direction getBugNavDir(MapLocation target) throws GameActionException {
 
         if(!lastTarget.equals(target))closestDistToTargetSoFar = Integer.MAX_VALUE; //reset if new target
-        if(roundsSinceLastReset > 50){ //reset every so often
+        if(roundsSinceLastReset > 30){ //reset every so often
             roundsSinceLastReset = 0;
             closestDistToTargetSoFar = Integer.MAX_VALUE;
         }

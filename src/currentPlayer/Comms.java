@@ -230,20 +230,22 @@ public class Comms {
                 return islandLocs;
         }
 
-        public static Set<MapLocation> getNeutralIslandLocations() throws GameActionException{
+        public static Set<MapLocation> getTeamIslandLocations(Team team) throws GameActionException{
                 MapLocation islandLoc = null;
                 Set<MapLocation> islandLocs = new HashSet<>();
                 for(int i= 0; i < 34; i++){
                         int encodedMsg = rc.readSharedArray(INDEX_ISLANDS_START + i -1);
                         if(encodedMsg ==0) continue;
                         Team islandTeam = readTeamHoldingIsland(encodedMsg);
-                        if(islandTeam == Team.NEUTRAL){
+                        if(islandTeam == team){
                                 islandLoc = readIslandLocation(encodedMsg);
                                 if(islandLoc != null) islandLocs.add(islandLoc);
                         }
                 }
                 return islandLocs;
         }
+
+
 
 
 
