@@ -39,6 +39,7 @@ public class Carrier extends Robot {
         heldWeight = getHeldWeight();
         isFull = heldWeight >= 39;
         getMinerType();   //Sets myResourceType (Adamantium, Mana, Elixir)
+        tryAttack();
         findWell();       //Sets targetWell if null
         tryChangeState(); //Ex: change from an Explorer to a Miner if there is a well nearby
         runStateAction(); //Ex: if you are a Miner, mine
@@ -91,6 +92,17 @@ public class Carrier extends Robot {
             if(islandTeam == Team.NEUTRAL && rc.readSharedArray(id + Comms.INDEX_ISLANDS_START -1) == 0){ //shared array does not contain this island
                MapLocation[] islandLocations = rc.senseNearbyIslandLocations(id);
                 neutralIslandLocations.add(islandLocations[0]);
+            }
+        }
+    }
+
+    public void tryAttack() throws GameActionException{
+        for(int i = nearbyEnemies.length; --i>=0;){
+            RobotInfo enemy = nearbyEnemies[i];
+            if(enemy.type == RobotType.LAUNCHER){
+                if(rc.canAttack(enemy.location)){
+                    rc.attack(enemy.location);
+                }
             }
         }
     }
