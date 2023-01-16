@@ -29,9 +29,8 @@ public class Launcher extends Robot{
         checkLeaderDetails();
         setCountNearbyAllyLaunchers();
 
-        if(nearbyEnemies.length > 0) {
-            tryAttack();  // Try to attack someone
-        }
+
+        tryAttack();  // Try to attack someone
 
         if(!tryGoToEnemyHQ()){ //Try to go to enemy HQ
             if(!isLeader) {
@@ -85,11 +84,12 @@ public class Launcher extends Robot{
             int lowestHealth = Integer.MAX_VALUE;
             MapLocation weakestEnemyLoc = null;
             for(int i = enemies.length; --i>=0;){
-                if(enemies[i].health < lowestHealth){
+                if(enemies[i].health < lowestHealth && enemies[i].type != RobotType.HEADQUARTERS){
                     lowestHealth = enemies[i].health;
                     weakestEnemyLoc = enemies[i].location;
                 }
             }
+            if(weakestEnemyLoc == null) return;
 
             if (rc.canAttack(weakestEnemyLoc)) {
                 rc.attack(weakestEnemyLoc);

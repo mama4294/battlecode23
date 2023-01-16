@@ -1,6 +1,10 @@
 package currentPlayer;
 import battlecode.common.*;
 
+//todo: fix issue with carriers placing anchor on top of each other
+//todo: fix carrier bug not moving
+
+
 /**
  * RobotPlayer is the class that describes your main robot strategy.
  * The run() method inside this class is like your main function: this is what we'll call once your robot

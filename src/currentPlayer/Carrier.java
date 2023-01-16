@@ -97,9 +97,10 @@ public class Carrier extends Robot {
     public void tryAttack() throws GameActionException{
         for(int i = nearbyEnemies.length; --i>=0;){
             RobotInfo enemy = nearbyEnemies[i];
-            if(enemy.type == RobotType.LAUNCHER){
+            if(enemy.type == RobotType.LAUNCHER && rc.getAnchor() == null){ //don't throw anchors
                 if(rc.canAttack(enemy.location)){
                     rc.attack(enemy.location);
+                    state = state.EXPLORE; //reset state because we lost the payload
                 }
             }
         }
@@ -205,7 +206,7 @@ public class Carrier extends Robot {
             if (neutralIslandLocations.size() > 0) {
                 MapLocation nearestNeutralIsland = Utils.nearestLocation(rc.getLocation(), neutralIslandLocations);
                 Debug.setString("ANCHOR: Moving my anchor towards " + nearestNeutralIsland);
-                if (rc.canPlaceAnchor() && rc.getLocation().isAdjacentTo(nearestNeutralIsland)) {
+                if (rc.canPlaceAnchor() && rc.getLocation().equals(nearestNeutralIsland)) {
                     Debug.setString("Huzzah, placed anchor!");
                     rc.placeAnchor();
                     state = State.EXPLORE;

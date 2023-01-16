@@ -18,7 +18,6 @@ public class Headquarters extends Robot {
 
     enum Strategy {
         BUILD_CARRIERS,
-
         BUILD_LAUNCHERS,
         GENTLE_ATTACK,
         ANCHORS,
@@ -126,9 +125,7 @@ public class Headquarters extends Robot {
                 case GENTLE_ATTACK:
                     int buildInt = rng.nextInt(100);
                     Debug.setString("Building carriers and launchers");
-                    if(buildInt > 50) {
-                        tryBuildAnchor();
-                    }else if(buildInt > 25){
+                    if(buildInt > 50){
                         tryBuild(RobotType.CARRIER);
                     }else{
                         tryBuild(RobotType.LAUNCHER);
@@ -211,6 +208,7 @@ public class Headquarters extends Robot {
 
     private MapLocation getLocNearestToDestInActionRadius(RobotType type, MapLocation destination) throws GameActionException{
         //finds the nearest location within action radius of the destination
+        if(destination == null) return null;
         MapLocation bestLoc = null;
         MapLocation locToCheck;
         int closesdDist = Integer.MAX_VALUE;
