@@ -3,9 +3,7 @@ import battlecode.common.Direction;
 
 import battlecode.common.*;
 
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 public class Robot {
 
@@ -60,7 +58,7 @@ public class Robot {
         }
         turnCount += 1;
         findHomeHQ();
-        senseNearybyRobots();
+        senseNearbyRobots();
         robotNumber = Comms.reportAlive();
         senseNearbyIslands();
     }
@@ -104,7 +102,7 @@ public class Robot {
         }
     }
 
-    public void senseNearybyRobots() throws GameActionException{
+    public void senseNearbyRobots() throws GameActionException{
         int radius = rc.getType().visionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         Team ally = rc.getTeam();
