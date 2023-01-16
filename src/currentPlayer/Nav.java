@@ -12,15 +12,19 @@ public class Nav{
 
         static Direction lastMoveDir = Direction.NORTH;
         static MapLocation lastTarget = null;
+        static Direction currecntDirection = null;
 
-        enum BugNavMode {
-            FREE_PATHING,
-            WALL_WALKING
-    }
-        static BugNavMode bugNavMode = BugNavMode.FREE_PATHING;
+        enum Handedness{
+            LEFT,
+            RIGHT
+        }
+
+        static Handedness robothandedness = null;
+
 
         public static void init(RobotController r) {
             rc = r;
+            robothandedness = rng.nextBoolean() ? Handedness.LEFT : Handedness.RIGHT;
         }
 
 
@@ -87,49 +91,37 @@ public class Nav{
         return false;
     }
 
-    //bugnav to a location
-    static Direction getBugNavDir(MapLocation destination) throws GameActionException {
-        //TODO add dangerous locations to avoid
-        roundsSinceLastReset++;
-        if (!rc.isMovementReady()) return Direction.CENTER;
-        if (rc.getLocation().equals(destination)) return Direction.CENTER;
 
-        // every 20 rounds, reset the closest distance
-        if (roundsSinceLastReset >= 20) {
-            roundsSinceLastReset = 0;
-            closestDistToTargetSoFar = Integer.MAX_VALUE;
-        }
 
-        //setup for iteration
-        Direction dir = lastMoveDir;
-        Direction greedyDir = null;
-        int closestGreedyDist = Integer.MAX_VALUE;
+    //Pathing to a location
+    public static Direction getBugNavDir(MapLocation target) throws GameActionException {
 
-        //Check to see if you can get closer to the target than ever before.
-        for (int i = 8; --i >= 0; dir = dir.rotateRight()) {
-            MapLocation potentialLoc = rc.adjacentLocation(dir);
-            int dist = potentialLoc.distanceSquaredTo(destination);
-            if (dist < closestGreedyDist && rc.canSenseLocation(potentialLoc) && rc.canMove(dir)) {
-                closestGreedyDist = dist;
-                greedyDir = dir;
+        if(!lastTarget.equals(target))closestDistToTargetSoFar = Integer.MAX_VALUE; //reset if new target
+        lastTarget = target;
+
+        if (rc.getLocation().equals(target)) return Direction.CENTER; //if you are already there, do nothing
+        if (!rc.isMovementReady()) return Direction.CENTER; //if you can't move, do nothing
+
+        Direction d = rc.getLocation().directionTo(target);
+        int dist = rc.getLocation().add(d).distanceSquaredTo(target);
+        if (rc.canMove(d) && dist < closestDistToTargetSoFar) { //try move directly towards target
+            currecntDirection = null; //reset current direction
+            closestDistToTargetSoFar = dist; //update closest distance
+            return d;
+        } else {
+            //obstacle in the way, try to move around it
+            if (currecntDirection == null) currecntDirection = d; //set current direction if null
+            for (int i = directions.length; --i >= 0; currecntDirection = robothandedness == Handedness.LEFT ? currecntDirection.rotateLeft() : currecntDirection.rotateRight()) {
+                if (rc.canMove(currecntDirection)) {
+                    dist = rc.getLocation().add(currecntDirection).distanceSquaredTo(target);
+
+                    if(dist < closestDistToTargetSoFar)closestDistToTargetSoFar = dist;
+                    Direction bestDir = currecntDirection;
+                    currecntDirection = robothandedness == Handedness.LEFT ? currecntDirection.rotateRight() : currecntDirection.rotateLeft(); //angle in next current direction to account for concave obsticles.
+                    return bestDir;
+                }
             }
         }
-        if (closestGreedyDist < closestDistToTargetSoFar) {
-            lastMoveDir = greedyDir;
-            closestDistToTargetSoFar = closestGreedyDist;
-            return greedyDir;
-        }
-
-
-        //Else, wall walk
-        dir = lastMoveDir;
-        for (int i = 8; --i >= 0; dir = dir.rotateRight()) {
-            if (rc.canMove(dir)) {
-                lastMoveDir = dir;
-                return dir;
-            }
-        }
-
         return null;
     }
 
