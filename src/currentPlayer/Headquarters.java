@@ -43,13 +43,12 @@ public class Headquarters extends Robot {
         checkIfUnderAttack();
         tryChangeStrategy();
         enactStrategy();
-        Debug.setString("I am robot number: " + robotNumber);
     }
 
     public void tryChangeStrategy() throws GameActionException {
-        if (buildCount <= 3) {
+        if (rc.getRoundNum() < 10) {
             strategy = Strategy.BUILD_CARRIERS;
-        } else if (buildCount <= 6) {
+        } else if (rc.getRoundNum() < 20) {
             strategy = Strategy.BUILD_LAUNCHERS;
         }else if(rc.getRoundNum() < 1000){
             strategy = Strategy.CARRIERS_AND_LAUNCHERS;
@@ -114,13 +113,15 @@ public class Headquarters extends Robot {
     public void enactStrategy() throws GameActionException {
           switch (strategy) {
                 case BUILD_CARRIERS:
-                    boolean buildAdamantium = rng.nextBoolean();
+                    boolean buildAdamantium = rc.getResourceAmount(ResourceType.ADAMANTIUM) < rc.getResourceAmount(ResourceType.MANA);
                     if(buildAdamantium){
                         buildCarrier(ResourceType.ADAMANTIUM);
+                        Debug.setString("Building Admantium Carriers");
                     }else{
                         buildCarrier(ResourceType.MANA);
+                        Debug.setString("Building Mana carriers");
                     }
-                    Debug.setString("Building Carriers");
+
                     break;
               case BUILD_LAUNCHERS:
                   tryBuild(RobotType.LAUNCHER);

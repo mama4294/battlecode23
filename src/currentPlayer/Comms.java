@@ -41,6 +41,11 @@ public class Comms {
 
         static  final int INDEX_MINE_LOC_ADAMANTIUM = 51;
         static  final int INDEX_MINE_LOC_MANA = 52;
+        static  final int HQ_CARRIER_INFO_1 = 53;
+        static  final int HQ_CARRIER_INFO_2 = 54;
+        static  final int HQ_CARRIER_INFO_3 = 55;
+        static  final int HQ_CARRIER_INFO_4 = 56;
+
 
         enum MessageCode {
                 ADAMANTIUM_MINE_LOC,

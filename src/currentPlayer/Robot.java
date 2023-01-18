@@ -3,6 +3,10 @@ import battlecode.common.Direction;
 
 import battlecode.common.*;
 
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 
 public class Robot {
@@ -22,6 +26,8 @@ public class Robot {
     MapLocation homeHQ = null;
 
     MapLocation[] hqLocations;
+
+    Queue<MapLocation> possibleEnemyHQLocations= new LinkedList<>();
 
     RobotInfo[] nearbyEnemies = null;
     RobotInfo[] nearbyAllies = null;
@@ -50,9 +56,6 @@ public class Robot {
     }
 
     public void takeTurn() throws GameActionException {
-        if(turnCount==0){
-            turnCount=rc.getRoundNum();
-        }
         if(hqLocations == null){
             hqLocations = Comms.getHQLocations();
         }
@@ -117,6 +120,23 @@ public class Robot {
                 Comms.updateIslandInfo(islandLocations[i]);
             }
         }
+    }
+
+    public void guessEnemyHQLocsFromSymmetry() throws GameActionException{
+        //TODO change this to account for all HQ's, not just the homeHQ
+        if(homeHQ == null)return;
+
+        int width = rc.getMapWidth();
+        int height = rc.getMapHeight();
+
+        MapLocation guess1 = new MapLocation(width - homeHQ.x, height - homeHQ.y);
+        MapLocation guess2 = new MapLocation(width - homeHQ.x, homeHQ.y);
+        MapLocation guess3 = new MapLocation(homeHQ.x, height - homeHQ.y);
+
+        possibleEnemyHQLocations.add(guess1);
+        possibleEnemyHQLocations.add(guess2);
+        possibleEnemyHQLocations.add(guess3);
+
     }
 
 }

@@ -1,11 +1,7 @@
 package currentPlayer;
 
 import battlecode.common.*;
-
-import java.lang.reflect.MalformedParameterizedTypeException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Launcher extends Robot{
@@ -17,6 +13,7 @@ public class Launcher extends Robot{
     static int countNearbyAllyLaunchers = 0;
 
     MapLocation leaderLocation = null;
+    MapLocation defensiveLocation = null;
     boolean isLeader = false;
 
 
@@ -29,29 +26,38 @@ public class Launcher extends Robot{
         enemyIslandLocations = Comms.getTeamIslandLocations(rc.getTeam().opponent());
         checkLeaderDetails();
         setCountNearbyAllyLaunchers();
-
+        if(turnCount == 1) guessEnemyHQLocsFromSymmetry();
+        if(defensiveLocation == null) setDefensivePosition();
 
         tryAttack();  // Try to attack someone
 
         if(!tryGoToEnemyHQ()){ //Try to go to enemy HQ
             if(!isLeader) {
                 Nav.goTo(leaderLocation); //follow the leader
+                Debug.setString("Following the leader at " + leaderLocation);
             } else if(enemyIslandLocations.size() > 0){ //try to capture enemy islands
                 MapLocation closestEnemyIsland = enemyIslandLocations.iterator().next();
                 Nav.goTo(closestEnemyIsland);
-            } else if( rc.getRoundNum() < 100){
-                //TODO; change to find enemy HQ loc using symmetry
-                explore();
+                Debug.setString("Capturing enemy island at" + closestEnemyIsland);
+            } else if( rc.getRoundNum() < 300 && possibleEnemyHQLocations.size() > 0){
+                    MapLocation possibleEnemyHQ = possibleEnemyHQLocations.iterator().next();
+                    Nav.goTo(possibleEnemyHQ);
+                Debug.setString("Going to possible enemy HQ at " + possibleEnemyHQ);
+                if(rc.canSenseLocation(possibleEnemyHQ)) possibleEnemyHQLocations.remove(); //reset
             } else{
-                MapLocation center = new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2);
-                Nav.goTo(center);
+                if(defensiveLocation != null) Nav.goTo(defensiveLocation);
+//                MapLocation center = new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2);
+//                Nav.goTo(center);
+                Debug.setString("Going to defensive location at: " + defensiveLocation);
             }
-
-//            else explore();
         }
+    }
 
-
-
+    public void setDefensivePosition() throws GameActionException{
+        MapLocation center = new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2);
+        int x = center.x - homeHQ.x;
+        int y = center.y - homeHQ.y;
+        defensiveLocation = new MapLocation(homeHQ.x+x/2, homeHQ.y + y/2);
     }
 
     public void checkLeaderDetails() throws GameActionException{
