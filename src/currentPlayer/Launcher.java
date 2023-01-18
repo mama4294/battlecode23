@@ -39,7 +39,15 @@ public class Launcher extends Robot{
             } else if(enemyIslandLocations.size() > 0){ //try to capture enemy islands
                 MapLocation closestEnemyIsland = enemyIslandLocations.iterator().next();
                 Nav.goTo(closestEnemyIsland);
-            } else explore();
+            } else if( rc.getRoundNum() < 100){
+                //TODO; change to find enemy HQ loc using symmetry
+                explore();
+            } else{
+                MapLocation center = new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2);
+                Nav.goTo(center);
+            }
+
+//            else explore();
         }
 
 
