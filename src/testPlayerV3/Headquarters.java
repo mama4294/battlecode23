@@ -1,4 +1,4 @@
-package currentPlayer;
+package testPlayerV3;
 import battlecode.common.*;
 
 import java.util.ArrayList;
@@ -13,15 +13,13 @@ public class Headquarters extends Robot {
     static boolean isUnderAttack = false;
     static int turnsSinceAttach = 100;
 
-    static int buildCount = 0;
-
     static ArrayList<MapLocation> minesLocsAdamantium = new ArrayList<>();
     static ArrayList<MapLocation> minesLocsMana = new ArrayList<>();
 
     enum Strategy {
         BUILD_CARRIERS,
         BUILD_LAUNCHERS,
-        CARRIERS_AND_LAUNCHERS,
+        GENTLE_ATTACK,
         ANCHORS,
 
 
@@ -47,12 +45,10 @@ public class Headquarters extends Robot {
     }
 
     public void tryChangeStrategy() throws GameActionException {
-        if (buildCount <= 3) {
+        if (rc.getRoundNum() < 100) {
             strategy = Strategy.BUILD_CARRIERS;
-        } else if (buildCount <= 6) {
-            strategy = Strategy.BUILD_LAUNCHERS;
-        }else if(rc.getRoundNum() < 1000){
-            strategy = Strategy.CARRIERS_AND_LAUNCHERS;
+        }else if(rc.getRoundNum() < 350){
+            strategy = Strategy.GENTLE_ATTACK;
         }else{
             strategy = Strategy.ANCHORS;
         }
@@ -126,7 +122,7 @@ public class Headquarters extends Robot {
                   tryBuild(RobotType.LAUNCHER);
                   Debug.setString("UNDER ATTACK: Building Launchers");
                   break;
-                case CARRIERS_AND_LAUNCHERS:
+                case GENTLE_ATTACK:
                     int buildInt = rng.nextInt(100);
                     Debug.setString("Building carriers and launchers");
                     if(buildInt > 50){
@@ -149,7 +145,6 @@ public class Headquarters extends Robot {
             Direction dir = directions[i];
             if (rc.canBuildRobot(type, currentLocation.add(dir))) {
                 rc.buildRobot(type, currentLocation.add(dir));
-                buildCount++;
                 return true;
             }
         }
@@ -205,7 +200,6 @@ public class Headquarters extends Robot {
             Direction dir = directions[i];
             if (rc.canBuildRobot(type, currentLocation.add(dir))) {
                 rc.buildRobot(type, currentLocation.add(dir));
-                buildCount++;
                 return true;
             }
         }
