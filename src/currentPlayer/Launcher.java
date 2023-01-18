@@ -2,6 +2,7 @@ package currentPlayer;
 
 import battlecode.common.*;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class Launcher extends Robot{
@@ -30,6 +31,8 @@ public class Launcher extends Robot{
         if(defensiveLocation == null) setDefensivePosition();
 
         tryAttack();  // Try to attack someone
+        MapLocation enemyIslandLoc = senseNearbyForEnemyIslands();
+        if(enemyIslandLoc != null) Nav.goTo(enemyIslandLoc); //GoTo enemy island location
 
         if(!tryGoToEnemyHQ()){ //Try to go to enemy HQ
             if(!isLeader) {
@@ -89,6 +92,19 @@ public class Launcher extends Robot{
             }
         }
         countNearbyAllyLaunchers = count;
+    }
+
+    public MapLocation senseNearbyForEnemyIslands() throws GameActionException{
+        int[] islandLocationsIds = rc.senseNearbyIslands();
+        if(islandLocationsIds.length > 0){
+            for(int i = 0; i < islandLocationsIds.length; i++){
+                if(rc.senseTeamOccupyingIsland(islandLocationsIds[i]) == rc.getTeam().opponent()){
+                    MapLocation[] allIslandLocs = rc.senseNearbyIslandLocations(islandLocationsIds[i]);
+                    return allIslandLocs[0];
+                }
+            }
+        }
+        return null;
     }
 
     public void tryAttack() throws GameActionException {
