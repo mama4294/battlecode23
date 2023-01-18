@@ -2,6 +2,7 @@ package currentPlayer;
 
 import battlecode.common.*;
 
+import java.lang.reflect.MalformedParameterizedTypeException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -80,24 +81,46 @@ public class Launcher extends Robot{
         RobotInfo[] enemies = nearbyEnemies;
 
         if (enemies.length > 0) {
-            //fnd enemy with lowest health
-            int lowestHealth = Integer.MAX_VALUE;
-            MapLocation weakestEnemyLoc = null;
-            for(int i = enemies.length; --i>=0;){
-                if(enemies[i].health < lowestHealth && enemies[i].type != RobotType.HEADQUARTERS){
-                    lowestHealth = enemies[i].health;
-                    weakestEnemyLoc = enemies[i].location;
-                }
-            }
-            if(weakestEnemyLoc == null) return;
+            //find enemy with lowest health
+            MapLocation toAttack = getPrioritizedEnemyToAttack();
+            if(toAttack == null) return;
 
-            if (rc.canAttack(weakestEnemyLoc)) {
-                rc.attack(weakestEnemyLoc);
+            if (rc.canAttack(toAttack)) {
+                rc.attack(toAttack);
             }
             else{
-                Nav.goTo(weakestEnemyLoc);
+                Nav.goTo(toAttack);
             }
         }
+    }
+
+
+    public MapLocation getPrioritizedEnemyToAttack () throws GameActionException{
+        //Prioritize low heath enemy combatants
+        if(nearbyEnemies.length < 1) return null;
+        MapLocation prioritizedEnemyLoc = null;
+        int prorityScore = Integer.MAX_VALUE; // lower is better
+
+        for(int i = nearbyEnemies.length; --i>=0;){
+            RobotInfo enemy = nearbyEnemies[i];
+            if(enemy.type == RobotType.HEADQUARTERS) continue;
+            int score = enemy.health + getRobotPriority(enemy.type);
+            if(score < prorityScore){
+                prorityScore = score;
+                prioritizedEnemyLoc = enemy.location;
+            }
+        }
+        return prioritizedEnemyLoc;
+    }
+
+    public int getRobotPriority(RobotType type) throws  GameActionException{
+        switch (type)  {
+            case LAUNCHER: return 0;
+            case AMPLIFIER: return 100;
+            case DESTABILIZER: return 200;
+            case BOOSTER: return 300;
+            case CARRIER: return 400;
+        }return 1000;
     }
 
     public MapLocation getLeaderLocation () throws GameActionException {
