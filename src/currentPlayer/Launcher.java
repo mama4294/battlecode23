@@ -118,6 +118,8 @@ public class Launcher extends Robot{
 
             if (rc.canAttack(toAttack)) {
                 rc.attack(toAttack);
+                Direction retreatDir = rc.getLocation().directionTo(toAttack).opposite();
+                if(rc.canMove(retreatDir)) rc.move(retreatDir); //retreat after attacking to avoid counter attack
             }
             else{
                 Nav.goTo(toAttack);
