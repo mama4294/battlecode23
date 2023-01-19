@@ -30,6 +30,7 @@ public class Launcher extends Robot{
         if(turnCount == 1) guessEnemyHQLocsFromSymmetry();
         if(defensiveLocation == null) setDefensivePosition();
 
+        getOutOfDangerousArea();
         tryAttack();  // Try to attack someone
         MapLocation enemyIslandLoc = senseNearbyForEnemyIslands();
         if(enemyIslandLoc != null) Nav.goTo(enemyIslandLoc); //GoTo enemy island location
@@ -66,6 +67,17 @@ public class Launcher extends Robot{
     public void checkLeaderDetails() throws GameActionException{
          leaderLocation = getLeaderLocation();
          isLeader = isLeader(leaderLocation);
+    }
+
+    public void getOutOfDangerousArea() throws GameActionException{
+        for (RobotInfo robot : nearbyEnemies) {
+            if(robot.type == RobotType.HEADQUARTERS){
+                if(rc.getLocation().distanceSquaredTo(robot.location) < RobotType.HEADQUARTERS.actionRadiusSquared) {
+                    Nav.goTo(rc.getLocation().directionTo(robot.location).opposite());
+                    Debug.setString("Getting out of HQ attack range");
+                }
+            }
+        }
     }
 
     public boolean tryGoToEnemyHQ() throws GameActionException{
