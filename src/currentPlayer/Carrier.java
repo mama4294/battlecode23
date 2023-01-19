@@ -44,9 +44,9 @@ public class Carrier extends Robot {
     }
 
     public void runStateAction() throws GameActionException{
+        MapLocation enemyIslandLoc = senseNearbyForEnemyIslands();
         switch (state){
             case MINE:
-                MapLocation enemyIslandLoc = senseNearbyForEnemyIslands();
                 if(enemyIslandLoc != null){
                     Nav.goTo(enemyIslandLoc); //GoTo enemy island location
                     Debug.setString(myResourceType + " Miner: going to enemy island at : " + enemyIslandLoc);
@@ -67,6 +67,11 @@ public class Carrier extends Robot {
                 }
                 break;
             case EXPLORE:
+                if(enemyIslandLoc != null){
+                    Nav.goTo(enemyIslandLoc); //GoTo enemy island location
+                    Debug.setString(myResourceType + " Miner: going to enemy island at : " + enemyIslandLoc);
+                    break;
+                }
                 explore();
                 Debug.setString(myResourceType + " EXPlORER: exploring to " + explorationTarget);
                 break;
