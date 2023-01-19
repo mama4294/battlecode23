@@ -71,8 +71,8 @@ public class Launcher extends Robot{
     public boolean tryGoToEnemyHQ() throws GameActionException{
         for (RobotInfo robot : nearbyEnemies) {
             if(robot.type == RobotType.HEADQUARTERS){
-                if(rc.getLocation().isAdjacentTo(robot.location)){
-                    Debug.setString("I am adjacent to enemy HQ at " + robot.location);
+                if(rc.getLocation().distanceSquaredTo(robot.location) > RobotType.HEADQUARTERS.actionRadiusSquared){
+                    Debug.setString("I'm near the enemy HQ at " + robot.location);
                 }else{
                     Nav.goTo(robot.location);
                     Debug.setString("I am going to enemy HQ at " + robot.location);
