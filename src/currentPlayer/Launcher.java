@@ -146,11 +146,11 @@ public class Launcher extends Robot{
     public int getRobotPriority(RobotType type) throws  GameActionException{
         switch (type)  {
             case LAUNCHER: return 0;
-            case AMPLIFIER: return 100;
-            case DESTABILIZER: return 200;
-            case BOOSTER: return 300;
-            case CARRIER: return 400;
-        }return 1000;
+            case AMPLIFIER: return 1000;
+            case DESTABILIZER: return 2000;
+            case BOOSTER: return 3000;
+            case CARRIER: return 4000;
+        }return 10000;
     }
 
     public MapLocation getLeaderLocation () throws GameActionException {

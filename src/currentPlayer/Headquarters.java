@@ -19,6 +19,7 @@ public class Headquarters extends Robot {
     static ArrayList<MapLocation> minesLocsMana = new ArrayList<>();
 
     enum Strategy {
+        INITIAL,
         BUILD_CARRIERS,
         BUILD_LAUNCHERS,
         CARRIERS_AND_LAUNCHERS,
@@ -27,7 +28,7 @@ public class Headquarters extends Robot {
 
     }
 
-    static Strategy strategy = Strategy.BUILD_CARRIERS;
+    static Strategy strategy = Strategy.INITIAL;
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
@@ -46,8 +47,8 @@ public class Headquarters extends Robot {
     }
 
     public void tryChangeStrategy() throws GameActionException {
-        if (rc.getRoundNum() < 10) {
-            strategy = Strategy.BUILD_CARRIERS;
+        if (rc.getRoundNum() <= 1) {
+            strategy = Strategy.INITIAL;
         } else if (rc.getRoundNum() < 20) {
             strategy = Strategy.BUILD_LAUNCHERS;
         }else if(rc.getRoundNum() < 1000){
@@ -112,6 +113,14 @@ public class Headquarters extends Robot {
 
     public void enactStrategy() throws GameActionException {
           switch (strategy) {
+              case INITIAL:
+                  buildCarrier(ResourceType.ADAMANTIUM);
+                  buildCarrier(ResourceType.MANA);
+                  buildCarrier(ResourceType.ADAMANTIUM);
+                  buildCarrier(ResourceType.MANA);
+                  tryBuild(RobotType.LAUNCHER);
+                  tryBuild(RobotType.LAUNCHER);
+                  tryBuild(RobotType.LAUNCHER);
                 case BUILD_CARRIERS:
                     boolean buildAdamantium = rc.getResourceAmount(ResourceType.ADAMANTIUM) < rc.getResourceAmount(ResourceType.MANA);
                     if(buildAdamantium){
@@ -125,7 +134,7 @@ public class Headquarters extends Robot {
                     break;
               case BUILD_LAUNCHERS:
                   tryBuild(RobotType.LAUNCHER);
-                  Debug.setString("UNDER ATTACK: Building Launchers");
+                  Debug.setString("Building Launchers");
                   break;
                 case CARRIERS_AND_LAUNCHERS:
                     int buildInt = rng.nextInt(100);
@@ -159,7 +168,6 @@ public class Headquarters extends Robot {
 
     public boolean buildCarrier(ResourceType resource) throws GameActionException {
         if(rc.getResourceAmount(ResourceType.ADAMANTIUM) < RobotType.CARRIER.buildCostAdamantium || rc.getResourceAmount(ResourceType.MANA) < RobotType.CARRIER.buildCostMana)  return false;
-        MapLocation currentLocation = rc.getLocation();
         ArrayList<MapLocation> minesLocs = new ArrayList<>();
 
         switch (resource){

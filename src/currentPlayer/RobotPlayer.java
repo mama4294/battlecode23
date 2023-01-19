@@ -1,8 +1,9 @@
 package currentPlayer;
 import battlecode.common.*;
 
-//todo: fix issue with carriers placing anchor on top of each other
-//todo: fix carrier bug not moving
+//todo: launchers don't enter HQ space.
+//todo: carriers attack other carriers
+//todo: launchers attack, then retreat
 
 
 /**
