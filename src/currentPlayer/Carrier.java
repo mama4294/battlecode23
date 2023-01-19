@@ -46,15 +46,20 @@ public class Carrier extends Robot {
     public void runStateAction() throws GameActionException{
         switch (state){
             case MINE:
+                MapLocation enemyIslandLoc = senseNearbyForEnemyIslands();
+                if(enemyIslandLoc != null){
+                    Nav.goTo(enemyIslandLoc); //GoTo enemy island location
+                    Debug.setString(myResourceType + " Miner: going to enemy island at : " + enemyIslandLoc);
+                    break;
+                }
+
                 if(targetWell != null) {
                     Debug.setString(myResourceType + " Miner: Moving to well at: " + targetWell);
                     collectFromWell(targetWell);
                     boolean isAdjactentToWell = rc.getLocation().isAdjacentTo(targetWell);
-                            if(isAdjactentToWell){
-                                //stay put
-                            }else{
-                                Nav.goTo(targetWell);
-                            }
+                    if(isAdjactentToWell){
+                        //stay put
+                    }else Nav.goTo(targetWell);
 
                 }else{
                     Nav.moveRandomly();

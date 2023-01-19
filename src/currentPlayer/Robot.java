@@ -147,6 +147,19 @@ public class Robot {
         }
     }
 
+    public MapLocation senseNearbyForEnemyIslands() throws GameActionException{
+        int[] islandLocationsIds = rc.senseNearbyIslands();
+        if(islandLocationsIds.length > 0){
+            for(int i = 0; i < islandLocationsIds.length; i++){
+                if(rc.senseTeamOccupyingIsland(islandLocationsIds[i]) == rc.getTeam().opponent()){
+                    MapLocation[] allIslandLocs = rc.senseNearbyIslandLocations(islandLocationsIds[i]);
+                    return allIslandLocs[0];
+                }
+            }
+        }
+        return null;
+    }
+
     public void guessEnemyHQLocsFromSymmetry() throws GameActionException{
         //TODO change this to account for all HQ's, not just the homeHQ
         if(homeHQ == null)return;
