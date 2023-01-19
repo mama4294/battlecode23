@@ -125,33 +125,9 @@ public class Launcher extends Robot{
     }
 
 
-    public MapLocation getPrioritizedEnemyToAttack () throws GameActionException{
-        //Prioritize low heath enemy combatants
-        if(nearbyEnemies.length < 1) return null;
-        MapLocation prioritizedEnemyLoc = null;
-        int prorityScore = Integer.MAX_VALUE; // lower is better
 
-        for(int i = nearbyEnemies.length; --i>=0;){
-            RobotInfo enemy = nearbyEnemies[i];
-            if(enemy.type == RobotType.HEADQUARTERS) continue;
-            int score = enemy.health + getRobotPriority(enemy.type);
-            if(score < prorityScore){
-                prorityScore = score;
-                prioritizedEnemyLoc = enemy.location;
-            }
-        }
-        return prioritizedEnemyLoc;
-    }
 
-    public int getRobotPriority(RobotType type) throws  GameActionException{
-        switch (type)  {
-            case LAUNCHER: return 0;
-            case AMPLIFIER: return 1000;
-            case DESTABILIZER: return 2000;
-            case BOOSTER: return 3000;
-            case CARRIER: return 4000;
-        }return 10000;
-    }
+
 
     public MapLocation getLeaderLocation () throws GameActionException {
         int leaderId = rc.getID();

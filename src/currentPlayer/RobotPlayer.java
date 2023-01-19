@@ -2,7 +2,6 @@ package currentPlayer;
 import battlecode.common.*;
 
 //todo: launchers don't enter HQ space.
-//todo: carriers attack other carriers
 //todo: launchers attack, then retreat
 
 
