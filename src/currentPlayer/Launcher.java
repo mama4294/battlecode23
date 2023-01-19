@@ -72,7 +72,7 @@ public class Launcher extends Robot{
     public void getOutOfDangerousArea() throws GameActionException{
         for (RobotInfo robot : nearbyEnemies) {
             if(robot.type == RobotType.HEADQUARTERS){
-                if(rc.getLocation().distanceSquaredTo(robot.location) < RobotType.HEADQUARTERS.actionRadiusSquared) {
+                if(rc.getLocation().distanceSquaredTo(robot.location) <= RobotType.HEADQUARTERS.actionRadiusSquared) {
                     Nav.goTo(rc.getLocation().directionTo(robot.location).opposite());
                     Debug.setString("Getting out of HQ attack range");
                 }
@@ -106,18 +106,7 @@ public class Launcher extends Robot{
         countNearbyAllyLaunchers = count;
     }
 
-    public MapLocation senseNearbyForEnemyIslands() throws GameActionException{
-        int[] islandLocationsIds = rc.senseNearbyIslands();
-        if(islandLocationsIds.length > 0){
-            for(int i = 0; i < islandLocationsIds.length; i++){
-                if(rc.senseTeamOccupyingIsland(islandLocationsIds[i]) == rc.getTeam().opponent()){
-                    MapLocation[] allIslandLocs = rc.senseNearbyIslandLocations(islandLocationsIds[i]);
-                    return allIslandLocs[0];
-                }
-            }
-        }
-        return null;
-    }
+
 
     public void tryAttack() throws GameActionException {
         RobotInfo[] enemies = nearbyEnemies;
