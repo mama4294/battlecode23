@@ -9,6 +9,8 @@ public class Carrier extends Robot {
     int heldWeight = 0;
     boolean isFull = false;
 
+    int optimalCarryWeight = 39;
+
     ResourceType myResourceType = null;
 
 
@@ -36,7 +38,7 @@ public class Carrier extends Robot {
         neutralIslandLocations = Comms.getTeamIslandLocations(Team.NEUTRAL);
         findNearbyNeutralIslands();
         heldWeight = getHeldWeight();
-        isFull = heldWeight >= 39;
+        isFull = heldWeight >= optimalCarryWeight;
         getMinerType();   //Sets myResourceType (Adamantium, Mana, Elixir)
         tryAttack();
         findWell();       //Sets targetWell if null
@@ -125,6 +127,12 @@ public class Carrier extends Robot {
     public void findWell() throws GameActionException {
         if(targetWell == null && myResourceType != null){
             targetWell = getWellLoc(myResourceType);
+
+            if(targetWell != null){
+                //Set the optimal carry weight based on the distance from the HQ
+                int squaresTargetFromHQ = (int) Math.ceil(Math.sqrt(homeHQ.distanceSquaredTo(targetWell)));
+                optimalCarryWeight = getOptimalResourceCount(squaresTargetFromHQ, false);
+            }
         }
     }
 
@@ -163,10 +171,11 @@ public class Carrier extends Robot {
         if (rc.canCollectResource(wellLocation, -1)) {
 
                 rc.collectResource(wellLocation, -1);
-                Debug.setString("Collecting, now have, AD:" +
+                Debug.setString("Collecting, now have, ADMAN:" +
                         rc.getResourceAmount(ResourceType.ADAMANTIUM) +
-                        " MN: " + rc.getResourceAmount(ResourceType.MANA) +
-                        " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
+                        " MANA: " + rc.getResourceAmount(ResourceType.MANA) +
+                        " ELIXER: " + rc.getResourceAmount(ResourceType.ELIXIR)+
+                        " out of: " + optimalCarryWeight);
             return true;
 
         }
@@ -233,6 +242,48 @@ public class Carrier extends Robot {
                 Debug.setString("ANCHOR: exploring to " + explorationTarget);
             }
         }
+    }
+
+
+    public static int getOptimalResourceCount(int distance, boolean isUpgradedWell){
+        int resourceGatheringRate = isUpgradedWell ? GameConstants.WELL_ACCELERATED_RATE : GameConstants.WELL_STANDARD_RATE;
+        double bestRate = 0;
+        int bestAmount = 1;
+        for (int m = 1; m < GameConstants.CARRIER_CAPACITY; m++){
+            int numTurns = 0;
+            //number of turns to get from HQ to well
+            numTurns += numTurns(distance, getCarrierMovementCooldown(0), 1);
+            //number of turns to gather m amount of resources
+            numTurns += numTurns(m, 8, resourceGatheringRate);
+            //number of turns to get from well to HQ
+            numTurns += numTurns(distance, getCarrierMovementCooldown(m), 1);
+            //rate = total number of resources/distance
+            double curRate = ((double) m)/numTurns;
+            if (curRate > bestRate){
+                bestRate = curRate;
+                bestAmount = m;
+            }
+        }
+        return bestAmount;
+    }
+    public static int getCarrierMovementCooldown(int amount){
+        return (int) (GameConstants.CARRIER_MOVEMENT_INTERCEPT+ GameConstants.CARRIER_MOVEMENT_SLOPE*amount);
+    }
+    public static int numTurns(int distance, int cooldown, int increment){
+        int numTurns = 1;
+        int curDistance = 0;
+        int curCD = 0;
+        while (curDistance != distance){
+            if (curCD < 10){
+                curDistance += increment;
+                curCD += cooldown;
+            }
+            else{
+                numTurns++;
+                curCD -= 10;
+            }
+        }
+        return numTurns;
     }
 
 }

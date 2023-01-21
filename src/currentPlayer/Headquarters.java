@@ -22,6 +22,7 @@ public class Headquarters extends Robot {
         INITIAL,
         BUILD_CARRIERS,
         BUILD_LAUNCHERS,
+        BUILD_LAUNCHERS_IN_THREES,
         CARRIERS_AND_LAUNCHERS,
         ANCHORS,
 
@@ -58,7 +59,7 @@ public class Headquarters extends Robot {
         }
 
         if(isUnderAttack || turnsSinceAttach < 10){
-            strategy = Strategy.BUILD_LAUNCHERS;
+            strategy = Strategy.BUILD_LAUNCHERS_IN_THREES;
         }
     }
 
@@ -119,8 +120,6 @@ public class Headquarters extends Robot {
                   buildCarrier(ResourceType.ADAMANTIUM);
                   buildCarrier(ResourceType.MANA);
                   tryBuild(RobotType.LAUNCHER);
-                  tryBuild(RobotType.LAUNCHER);
-                  tryBuild(RobotType.LAUNCHER);
                 case BUILD_CARRIERS:
                     boolean buildAdamantium = rc.getResourceAmount(ResourceType.ADAMANTIUM) < rc.getResourceAmount(ResourceType.MANA);
                     if(buildAdamantium){
@@ -134,16 +133,32 @@ public class Headquarters extends Robot {
                     break;
               case BUILD_LAUNCHERS:
                   tryBuild(RobotType.LAUNCHER);
-                  Debug.setString("Building Launchers");
+                  tryBuild(RobotType.LAUNCHER);
+                  tryBuild(RobotType.LAUNCHER);
+                  break;
+              case BUILD_LAUNCHERS_IN_THREES:
+                  if(rc.getResourceAmount(ResourceType.MANA) >= RobotType.LAUNCHER.buildCostMana * 3){
+                      tryBuild(RobotType.LAUNCHER);
+                      tryBuild(RobotType.LAUNCHER);
+                      tryBuild(RobotType.LAUNCHER);
+                      Debug.setString("Building Launchers");
+                  }else{
+                      Debug.setString("Saving up for 3 Launchers");
+                  }
+
                   break;
                 case CARRIERS_AND_LAUNCHERS:
-                    int buildInt = rng.nextInt(100);
                     Debug.setString("Building carriers and launchers");
-                    if(buildInt > 50){
-                        tryBuild(RobotType.CARRIER);
-                    }else{
+                    tryBuild(RobotType.CARRIER);
+                    tryBuild(RobotType.CARRIER);
+                    tryBuild(RobotType.CARRIER);
+
+                    if(rc.getResourceAmount(ResourceType.MANA) >= RobotType.LAUNCHER.buildCostMana * 3) {
+                        tryBuild(RobotType.LAUNCHER);
+                        tryBuild(RobotType.LAUNCHER);
                         tryBuild(RobotType.LAUNCHER);
                     }
+
                     break;
                 case ANCHORS:
                     Debug.setString("Building anchors");
