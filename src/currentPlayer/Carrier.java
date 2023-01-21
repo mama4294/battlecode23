@@ -18,6 +18,7 @@ public class Carrier extends Robot {
 
     State state = State.EXPLORE;
 
+
     enum State {
 
         MINE,
@@ -48,7 +49,7 @@ public class Carrier extends Robot {
         switch (state){
             case MINE:
                 if(enemyIslandLoc != null){
-                    Nav.goTo(enemyIslandLoc); //GoTo enemy island location
+                    tryMoveTwice(enemyIslandLoc);//GoTo enemy island location
                     Debug.setString(myResourceType + " Miner: going to enemy island at : " + enemyIslandLoc);
                     break;
                 }
@@ -59,7 +60,7 @@ public class Carrier extends Robot {
                     boolean isAdjactentToWell = rc.getLocation().isAdjacentTo(targetWell);
                     if(isAdjactentToWell){
                         //stay put
-                    }else Nav.goTo(targetWell);
+                    }else tryMoveTwice(targetWell);
 
                 }else{
                     Nav.moveRandomly();
@@ -68,7 +69,7 @@ public class Carrier extends Robot {
                 break;
             case EXPLORE:
                 if(enemyIslandLoc != null){
-                    Nav.goTo(enemyIslandLoc); //GoTo enemy island location
+                    tryMoveTwice(enemyIslandLoc);//GoTo enemy island location
                     Debug.setString(myResourceType + " Miner: going to enemy island at : " + enemyIslandLoc);
                     break;
                 }
@@ -80,7 +81,7 @@ public class Carrier extends Robot {
                 tryTransferToHomeHQ();
                 boolean isAdjecentToHomeHQ = rc.getLocation().isAdjacentTo(homeHQ);
                 if(!isAdjecentToHomeHQ){
-                    Nav.goTo(homeHQ);
+                    tryMoveTwice(homeHQ);
                 }
                 break;
             case ANCHORDELIVER:
@@ -102,6 +103,11 @@ public class Carrier extends Robot {
                 neutralIslandLocations.add(islandLocations[0]);
             }
         }
+    }
+
+    public void tryMoveTwice(MapLocation target) throws GameActionException{
+        Nav.goTo(target);
+        Nav.goTo(target);
     }
 
     public void tryAttack() throws GameActionException{
@@ -221,7 +227,7 @@ public class Carrier extends Robot {
                     rc.placeAnchor();
                     state = State.EXPLORE;
                 }
-                Nav.goTo(nearestNeutralIsland);
+                tryMoveTwice(nearestNeutralIsland);
             }else{
                 explore();
                 Debug.setString("ANCHOR: exploring to " + explorationTarget);
