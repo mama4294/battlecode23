@@ -2,6 +2,8 @@ package learningBot;
 
 import battlecode.common.*;
 
+import static learningBot.MapRecorder.*;
+
 // import learningBot.util.FastIterableIntSet;
 
 /***
@@ -111,7 +113,7 @@ public class Comm extends RobotPlayer {
   // HQ locations starting at bit 0
 
   // This method should be called by the setup of each HQ (Headquarters).
-  public static int HQInit(MapLocation location, int HQID) {
+  public static int HQInit(MapLocation location) throws GameActionException {
     // Iterate through the array of friendly HQ locations.
     for (int i = 0; i < GameConstants.MAX_STARTING_HEADQUARTERS; i++) {
       // Check if the current slot in the array is null (indicating an available HQ location).
@@ -453,7 +455,7 @@ public class Comm extends RobotPlayer {
     guessSym();
   }
 
-  public static void updateSym() {
+  public static void updateSym() throws GameActionException {
     int bits = readBits(SYM_BIT, 3);
     needSymmetryReport = false;
     for (int sym = 3; --sym >= 0;) {
@@ -477,33 +479,40 @@ public class Comm extends RobotPlayer {
     needSymmetryReport = false;
   }
 
-  public static void guessSym() {
-    int numPossible = 0;
-    for (int sym = 3; --sym >= 0;) {
-      if (!isSymEliminated[sym]) {
-        numPossible++;
-        symmetry = sym;
-      }
+  public static void guessSym() throws GameActionException {
+//    int numPossible = 0;
+//    for (int sym = 3; --sym >= 0;) {
+//      if (!isSymEliminated[sym]) {
+//        numPossible++;
+//        symmetry = sym;
+//      }
+//    }
+//    if (numPossible == 0) {
+//      System.out.println("impossible that no sym is correct, guess rotation");
+//      symmetry = 0;
+//      numPossible = 1;
+//    }
+//    if (numPossible == 1) {
+//      isSymmetryConfirmed = true;
+//    } else {
+//      isSymmetryConfirmed = false;
+//    }
+//    // update enemy HQ loc
+//    for (int i = numHQ; --i >= 0;) {
+//      MapLocation loc = friendlyHQLocations[i];
+//      enemyHQLocations[i] =
+//        new MapLocation(
+//          (symmetry & 1) == 0 ? mapWidth - loc.x - 1 : loc.x,
+//          (symmetry & 2) == 0 ? mapHeight - loc.y - 1 : loc.y
+//        );
+//    }
+
+    if(friendlyHQLocations[0]==null){
+      friendlyHQLocations[0] = rc.getLocation();
     }
-    if (numPossible == 0) {
-      System.out.println("impossible that no sym is correct, guess rotation");
-      symmetry = 0;
-      numPossible = 1;
-    }
-    if (numPossible == 1) {
-      isSymmetryConfirmed = true;
-    } else {
-      isSymmetryConfirmed = false;
-    }
-    // update enemy HQ loc
-    for (int i = numHQ; --i >= 0;) {
-      MapLocation loc = friendlyHQLocations[i];
-      enemyHQLocations[i] =
-        new MapLocation(
-          (symmetry & 1) == 0 ? mapWidth - loc.x - 1 : loc.x,
-          (symmetry & 2) == 0 ? mapHeight - loc.y - 1 : loc.y
-        );
-    }
+
+    enemyHQLocations = getValidSymmetryLocs(rc.getLocation(), validSymmetries);
+
   }
 
   // helper funcs

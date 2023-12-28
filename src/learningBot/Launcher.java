@@ -175,14 +175,14 @@ public class Launcher extends Unit {
 
   static void macro() throws GameActionException {
     if (!rc.isMovementReady()) return;
-    if (
-      Comm.needSymmetryReport && rc.getRoundNum() > 150 && rc.getID() % 8 == 0
-    ) {
-      // if it's mid/late game and we are the only one that know symmetry, go back to report it
-      moveToward(getClosestLoc(Comm.friendlyHQLocations));
-      indicator += "gotsym";
-      return;
-    }
+//    if (
+//      Comm.needSymmetryReport && rc.getRoundNum() > 150 && rc.getID() % 8 == 0
+//    ) {
+//      // if it's mid/late game and we are the only one that know symmetry, go back to report it
+//      moveToward(getClosestLoc(Comm.friendlyHQLocations));
+//      indicator += "gotsym";
+//      return;
+//    }
     if (tryIslandStuff()) return;
     if (lastSym != Comm.symmetry) {
       // recaculate the closest HQ when sym changes

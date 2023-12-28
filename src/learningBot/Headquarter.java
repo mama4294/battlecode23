@@ -30,7 +30,7 @@ public class Headquarter extends Unit {
   public static void run() throws GameActionException {
     if (turnCount == 0) {
       // first turn all HQ report
-      hqid = Comm.HQInit(rc.getLocation(), rc.getID());
+      hqid = Comm.HQInit(rc.getLocation());
       // for (WellInfo well : rc.senseNearbyWells()) {
       //   Comm.reportWells(
       //     well.getResourceType().resourceID,
@@ -57,7 +57,7 @@ public class Headquarter extends Unit {
     sense();
 
     canBuildLauncher = true;
-    canBuildCarrier = true;
+    canBuildCarrier = false;
 
     tryBuildLauncher();
     tryBuildCarrier();

@@ -90,7 +90,7 @@ public class Unit extends RobotPlayer {
         }
       }
     }
-    assert dis != Integer.MAX_VALUE;
+//    assert dis != Integer.MAX_VALUE;
     return rv;
   }
 
@@ -103,9 +103,9 @@ public class Unit extends RobotPlayer {
     return fromLocation.distanceSquaredTo(locations[id]);
   }
 
-  static int getClosestDis(MapLocation[] locations) {
-    return getClosestDis(rc.getLocation(), locations);
-  }
+//  static int getClosestDis(MapLocation[] locations) {
+//    return getClosestDis(rc.getLocation(), locations);
+//  }
 
   static MapLocation getClosestLoc(
     MapLocation fromLocation,
@@ -165,21 +165,6 @@ public class Unit extends RobotPlayer {
         randomMove();
         pathingCnt = 0;
       }
-      //            if (stuckCnt >= 10) {
-      //                // make sure if it's a carrier on a well, wait 40 turns
-      //                do {
-      //                    if (rc.getType() == RobotType.CARRIER && rc.getWeight() == GameConstants.CARRIER_CAPACITY) {
-      //                        if (rc.senseWell(rc.getLocation()) != null || stuckCnt < 20) {
-      //                            break; // a carrier on a well should never disintegrate, a carrier with max resource gets extra time
-      //                        }
-      //                        if (rc.getNumAnchors(Anchor.STANDARD) == 1 && stuckCnt < 40) {
-      //                            break; // a carrier trying having an anchor gets extra time
-      //                        }
-      //                    }
-      //                    System.out.printf("loc %s disintegrate due to stuck\n", rc.getLocation());
-      //                    rc.disintegrate();
-      //                } while (false);
-      //            }
       if (pathingCnt == 0) {
         //if free of obstacle: try go directly to target
         Direction dir = rc.getLocation().directionTo(location);

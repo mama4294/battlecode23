@@ -51,8 +51,7 @@ public class MapRecorder extends RobotPlayer {
     }
   }
 
-  public static void recordSurroundings(int leaveBytecodeCnt)
-    throws GameActionException {
+  public static void recordSurroundings(int leaveBytecodeCnt) throws GameActionException {
     if (!initialized) return;
     MapInfo[] surroundingTiles = rc.senseNearbyMapInfos();
     for (int i = surroundingTiles.length; --i >= 0;) {
@@ -86,8 +85,7 @@ public class MapRecorder extends RobotPlayer {
   }
 
 
-  static MapLocation[] getValidSymmetryLocs(MapLocation hqLoc, int symmetry)
-    throws GameActionException {
+  public static MapLocation[] getValidSymmetryLocs(MapLocation hqLoc, int symmetry) throws GameActionException {
     MapLocation verticalFlip = new MapLocation(
             mapHeight - hqLoc.x - 1,
             hqLoc.y
